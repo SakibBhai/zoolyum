@@ -19,22 +19,22 @@ const About = () => {
           </p>
         </div>
 
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
           {[
             {
-              icon: <Palette className="h-8 w-8 text-primary" />,
+              icon: <Palette className="h-6 w-6 md:h-8 md:w-8 text-primary" />,
               title: "Brand Identity",
               description:
                 "We craft unique and memorable brand identities that resonate with your target audience.",
             },
             {
-              icon: <Monitor className="h-8 w-8 text-primary" />,
+              icon: <Monitor className="h-6 w-6 md:h-8 md:w-8 text-primary" />,
               title: "Digital Strategy",
               description:
                 "Our data-driven strategies ensure your brand thrives in the digital landscape.",
             },
             {
-              icon: <Rocket className="h-8 w-8 text-primary" />,
+              icon: <Rocket className="h-6 w-6 md:h-8 md:w-8 text-primary" />,
               title: "Growth Marketing",
               description:
                 "We implement innovative marketing solutions that drive sustainable business growth.",
@@ -42,15 +42,17 @@ const About = () => {
           ].map((feature, index) => (
             <div
               key={index}
-              className="p-8 rounded-2xl glass hover:shadow-lg transition-all duration-300"
+              className="p-4 md:p-8 rounded-2xl glass hover:shadow-lg transition-all duration-300"
             >
-              <div className="rounded-full bg-primary/10 w-16 h-16 flex items-center justify-center">
+              <div className="rounded-full bg-primary/10 w-12 h-12 md:w-16 md:h-16 flex items-center justify-center">
                 {feature.icon}
               </div>
-              <h3 className="mt-6 text-xl font-semibold text-secondary">
+              <h3 className="mt-4 md:mt-6 text-lg md:text-xl font-semibold text-secondary">
                 {feature.title}
               </h3>
-              <p className="mt-4 text-secondary/70">{feature.description}</p>
+              <p className="mt-2 md:mt-4 text-sm md:text-base text-secondary/70">
+                {feature.description}
+              </p>
             </div>
           ))}
         </div>
