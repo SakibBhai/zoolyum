@@ -22,6 +22,8 @@ const Navbar = () => {
     { name: "About", href: "/#about" },
     { name: "Services", href: "/#services" },
     { name: "Portfolio", href: "/portfolio" },
+    { name: "Case Study", href: "/case-study" },
+    { name: "Blog", href: "/blog" },
     { name: "Contact", href: "/#contact" },
   ];
 
@@ -38,7 +40,7 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-6">
             {navLinks.map((link) => (
               link.href.startsWith("/#") ? (
                 <a
