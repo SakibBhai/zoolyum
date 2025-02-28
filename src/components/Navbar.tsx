@@ -1,11 +1,13 @@
 
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const location = useLocation();
+  const isHomePage = location.pathname === "/";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -17,14 +19,27 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const scrollToSection = (sectionId: string) => {
+    setIsOpen(false);
+    
+    if (isHomePage) {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    } else {
+      window.location.href = `/#${sectionId}`;
+    }
+  };
+
   const navLinks = [
     { name: "Home", href: "/" },
-    { name: "About", href: "/#about" },
-    { name: "Services", href: "/#services" },
-    { name: "Portfolio", href: "/portfolio" },
-    { name: "Case Study", href: "/case-study" },
-    { name: "Blog", href: "/blog" },
-    { name: "Contact", href: "/#contact" },
+    { name: "About", href: "/#about", section: "about" },
+    { name: "Services", href: "/#services", section: "services" },
+    { name: "Portfolio", href: "/#portfolio", section: "portfolio" },
+    { name: "Case Studies", href: "/#case-studies", section: "case-studies" },
+    { name: "Blog", href: "/#blog", section: "blog" },
+    { name: "Contact", href: "/#contact", section: "contact" },
   ];
 
   return (
@@ -42,10 +57,16 @@ const Navbar = () => {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
             {navLinks.map((link) => (
-              link.href.startsWith("/#") ? (
+              link.section ? (
                 <a
                   key={link.name}
                   href={link.href}
+                  onClick={(e) => {
+                    if (isHomePage) {
+                      e.preventDefault();
+                      scrollToSection(link.section!);
+                    }
+                  }}
                   className="text-secondary hover:text-primary transition-colors duration-300"
                 >
                   {link.name}
@@ -62,6 +83,12 @@ const Navbar = () => {
             ))}
             <a
               href="/#contact"
+              onClick={(e) => {
+                if (isHomePage) {
+                  e.preventDefault();
+                  scrollToSection('contact');
+                }
+              }}
               className="px-6 py-2 bg-primary text-white rounded-full hover:bg-primary-hover transition-colors duration-300"
             >
               Get Started
@@ -81,12 +108,15 @@ const Navbar = () => {
         {isOpen && (
           <div className="md:hidden mt-4 pb-4">
             {navLinks.map((link) => (
-              link.href.startsWith("/#") ? (
+              link.section ? (
                 <a
                   key={link.name}
                   href={link.href}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    scrollToSection(link.section!);
+                  }}
                   className="block py-2 text-secondary hover:text-primary transition-colors duration-300"
-                  onClick={() => setIsOpen(false)}
                 >
                   {link.name}
                 </a>
@@ -103,8 +133,12 @@ const Navbar = () => {
             ))}
             <a
               href="/#contact"
+              onClick={(e) => {
+                e.preventDefault();
+                scrollToSection('contact');
+                setIsOpen(false);
+              }}
               className="block mt-4 px-6 py-2 bg-primary text-white text-center rounded-full hover:bg-primary-hover transition-colors duration-300"
-              onClick={() => setIsOpen(false)}
             >
               Get Started
             </a>

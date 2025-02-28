@@ -6,6 +6,9 @@ import Services from "@/components/Services";
 import About from "@/components/About";
 import Contact from "@/components/Contact";
 import { Toaster } from "@/components/ui/toaster";
+import PortfolioPreview from "@/components/PortfolioPreview";
+import CaseStudyPreview from "@/components/CaseStudyPreview";
+import BlogPreview from "@/components/BlogPreview";
 
 const Index = () => {
   useEffect(() => {
@@ -31,6 +34,9 @@ const Index = () => {
       <Hero />
       <Services />
       <About />
+      <PortfolioPreview />
+      <CaseStudyPreview />
+      <BlogPreview />
       <Contact />
       <Toaster />
     </div>
