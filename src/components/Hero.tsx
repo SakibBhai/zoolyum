@@ -1,7 +1,64 @@
 
 import { ArrowRight } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
 
 const Hero = () => {
+  const statsRef = useRef<HTMLDivElement>(null);
+  const [animatedStats, setAnimatedStats] = useState({
+    clients: 0,
+    projects: 0,
+    years: 0,
+    awards: 0
+  });
+  const [hasAnimated, setHasAnimated] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting && !hasAnimated) {
+          setHasAnimated(true);
+          
+          // Animate the counters when stats section is visible
+          const duration = 2000; // animation duration in ms
+          const frameDuration = 1000 / 60; // 60fps
+          const totalFrames = Math.round(duration / frameDuration);
+          
+          let frame = 0;
+          const counter = setInterval(() => {
+            frame++;
+            
+            const progress = frame / totalFrames;
+            const easeOutQuad = (t: number) => t * (2 - t); // easing function
+            const easedProgress = easeOutQuad(progress);
+            
+            setAnimatedStats({
+              clients: Math.floor(easedProgress * 150),
+              projects: Math.floor(easedProgress * 200),
+              years: Math.floor(easedProgress * 10),
+              awards: Math.floor(easedProgress * 15)
+            });
+            
+            if (frame === totalFrames) {
+              clearInterval(counter);
+            }
+          }, frameDuration);
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    if (statsRef.current) {
+      observer.observe(statsRef.current);
+    }
+
+    return () => {
+      if (statsRef.current) {
+        observer.unobserve(statsRef.current);
+      }
+    };
+  }, [hasAnimated]);
+
   return (
     <section
       id="home"
@@ -51,18 +108,24 @@ const Hero = () => {
           </a>
         </div>
 
-        <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 max-w-4xl mx-auto animate-fade-up [animation-delay:600ms]">
+        <div 
+          ref={statsRef}
+          className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 max-w-4xl mx-auto animate-fade-up [animation-delay:600ms]"
+        >
           {[
-            { number: "150+", label: "Happy Clients" },
-            { number: "200+", label: "Projects Completed" },
-            { number: "10+", label: "Years Experience" },
-            { number: "15+", label: "Industry Awards" },
+            { number: hasAnimated ? animatedStats.clients : "0", suffix: "+", label: "Happy Clients" },
+            { number: hasAnimated ? animatedStats.projects : "0", suffix: "+", label: "Projects Completed" },
+            { number: hasAnimated ? animatedStats.years : "0", suffix: "+", label: "Years Experience" },
+            { number: hasAnimated ? animatedStats.awards : "0", suffix: "+", label: "Industry Awards" },
           ].map((stat, index) => (
             <div 
               key={index} 
               className="p-4 rounded-xl glass hover:shadow-md transition-all duration-300 hover:scale-105"
             >
-              <div className="text-3xl font-bold text-primary">{stat.number}</div>
+              <div className="flex items-center justify-center">
+                <span className="text-3xl font-bold text-primary">{stat.number}</span>
+                <span className="text-3xl font-bold text-primary">{stat.suffix}</span>
+              </div>
               <div className="mt-2 text-sm text-secondary/60">{stat.label}</div>
             </div>
           ))}
