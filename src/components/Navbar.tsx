@@ -45,13 +45,17 @@ const Navbar = () => {
   return (
     <nav
       className={`fixed w-full z-50 transition-all duration-300 ${
-        isScrolled ? "py-4 glass shadow-lg" : "py-6 bg-transparent"
+        isScrolled ? "py-3 glass shadow-lg" : "py-4 bg-transparent"
       }`}
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between">
-          <Link to="/" className="text-2xl font-bold text-primary">
-            Zoolyum
+          <Link to="/" className="flex items-center">
+            <img 
+              src="/lovable-uploads/d8065ca3-8770-4547-bd54-2883754725d0.png" 
+              alt="Zoolyum Logo" 
+              className="h-10 md:h-12"
+            />
           </Link>
 
           {/* Desktop Navigation */}
