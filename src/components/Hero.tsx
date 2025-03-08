@@ -5,50 +5,63 @@ const Hero = () => {
   return (
     <section
       id="home"
-      className="min-h-screen flex items-center justify-center pt-20 px-4"
+      className="min-h-screen flex items-center justify-center relative overflow-hidden pt-20 px-4"
     >
-      <div className="container mx-auto text-center">
-        <div className="inline-block animate-fade-in">
-          <span className="px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
+      {/* Animated background shapes */}
+      <div className="absolute inset-0 -z-10 overflow-hidden">
+        <div className="absolute top-1/4 left-1/3 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/3 w-96 h-96 bg-secondary/5 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-accent/10 rounded-full blur-3xl animate-pulse [animation-delay:2s]"></div>
+      </div>
+
+      <div className="container mx-auto text-center relative z-10">
+        <div className="inline-block animate-fade-in mb-4 transition-all hover:scale-105">
+          <span className="px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium shadow-sm">
             #BrandingPowerhouse
           </span>
         </div>
         
-        <h1 className="mt-8 text-4xl md:text-6xl font-bold text-secondary animate-fade-up">
+        <h1 className="mt-6 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-secondary animate-fade-up tracking-tight">
           Transform Your Brand with
-          <span className="text-primary"> Zoolyum</span>
+          <span className="text-primary ml-2 relative inline-block">
+            Zoolyum
+            <span className="absolute -bottom-2 left-0 w-full h-1 bg-primary/30 rounded-full"></span>
+          </span>
         </h1>
         
-        <p className="mt-6 text-lg text-secondary/80 max-w-2xl mx-auto animate-fade-up [animation-delay:200ms]">
+        <p className="mt-6 text-base sm:text-lg md:text-xl text-secondary/80 max-w-2xl mx-auto animate-fade-up [animation-delay:200ms] leading-relaxed">
           We craft compelling brand experiences that captivate audiences and drive
           growth. Your vision, our expertise – together we'll create something
           extraordinary.
         </p>
         
-        <div className="mt-10 space-x-4 animate-fade-up [animation-delay:400ms]">
+        <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-up [animation-delay:400ms]">
           <a
             href="#contact"
-            className="inline-flex items-center px-8 py-3 bg-primary text-white rounded-full hover:bg-primary-hover transition-all duration-300 transform hover:scale-105"
+            className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 bg-primary text-white rounded-full hover:bg-primary-hover transition-all duration-300 transform hover:scale-105 hover:shadow-lg shadow-md group"
           >
-            Get Started
-            <ArrowRight className="ml-2 h-5 w-5" />
+            <span>Get Started</span>
+            <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
           </a>
           <a
             href="#portfolio"
-            className="inline-flex items-center px-8 py-3 border-2 border-secondary/20 text-secondary rounded-full hover:bg-secondary/5 transition-all duration-300"
+            className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 border-2 border-secondary/20 text-secondary rounded-full hover:bg-secondary/5 transition-all duration-300 shadow-sm hover:shadow-md"
           >
             View Our Work
           </a>
         </div>
 
-        <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto animate-fade-up [animation-delay:600ms]">
+        <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 max-w-4xl mx-auto animate-fade-up [animation-delay:600ms]">
           {[
             { number: "150+", label: "Happy Clients" },
             { number: "200+", label: "Projects Completed" },
             { number: "10+", label: "Years Experience" },
             { number: "15+", label: "Industry Awards" },
           ].map((stat, index) => (
-            <div key={index} className="text-center">
+            <div 
+              key={index} 
+              className="p-4 rounded-xl glass hover:shadow-md transition-all duration-300 hover:scale-105"
+            >
               <div className="text-3xl font-bold text-primary">{stat.number}</div>
               <div className="mt-2 text-sm text-secondary/60">{stat.label}</div>
             </div>
