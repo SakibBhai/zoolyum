@@ -1,21 +1,19 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Pencil, Trash2, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import ProjectForm from "./portfolio/ProjectForm";
+import ProjectList from "./portfolio/ProjectList";
+
+// Define the Project type
+interface Project {
+  id: number;
+  title: string;
+  category: string;
+  description: string;
+  image: string;
+}
 
 // Sample data - in a real app, this would come from a database
 const initialProjects = [
@@ -42,16 +40,18 @@ const initialProjects = [
   },
 ];
 
+const emptyProject: Project = {
+  id: 0,
+  title: "",
+  category: "",
+  description: "",
+  image: "",
+};
+
 const AdminPortfolio = () => {
-  const [projects, setProjects] = useState(initialProjects);
+  const [projects, setProjects] = useState<Project[]>(initialProjects);
   const [isEditing, setIsEditing] = useState(false);
-  const [currentProject, setCurrentProject] = useState({
-    id: 0,
-    title: "",
-    category: "",
-    description: "",
-    image: "",
-  });
+  const [currentProject, setCurrentProject] = useState<Project>(emptyProject);
   const { toast } = useToast();
 
   const handleAddNew = () => {
@@ -65,7 +65,7 @@ const AdminPortfolio = () => {
     });
   };
 
-  const handleEdit = (project: typeof currentProject) => {
+  const handleEdit = (project: Project) => {
     setIsEditing(true);
     setCurrentProject(project);
   };
@@ -78,19 +78,17 @@ const AdminPortfolio = () => {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (projects.some(p => p.id === currentProject.id)) {
+  const handleSubmit = (updatedProject: Project) => {
+    if (projects.some(p => p.id === updatedProject.id)) {
       // Update existing project
-      setProjects(projects.map(p => p.id === currentProject.id ? currentProject : p));
+      setProjects(projects.map(p => p.id === updatedProject.id ? updatedProject : p));
       toast({
         title: "Project updated",
         description: "The project has been updated successfully",
       });
     } else {
       // Add new project
-      setProjects([...projects, currentProject]);
+      setProjects([...projects, updatedProject]);
       toast({
         title: "Project added",
         description: "The new project has been added successfully",
@@ -98,12 +96,12 @@ const AdminPortfolio = () => {
     }
     
     setIsEditing(false);
-    setCurrentProject({ id: 0, title: "", category: "", description: "", image: "" });
+    setCurrentProject(emptyProject);
   };
 
   const handleCancel = () => {
     setIsEditing(false);
-    setCurrentProject({ id: 0, title: "", category: "", description: "", image: "" });
+    setCurrentProject(emptyProject);
   };
 
   return (
@@ -116,109 +114,17 @@ const AdminPortfolio = () => {
       </div>
 
       {isEditing ? (
-        <Card>
-          <CardContent className="pt-6">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="title">Project Title</Label>
-                <Input 
-                  id="title" 
-                  value={currentProject.title} 
-                  onChange={(e) => setCurrentProject({...currentProject, title: e.target.value})}
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="category">Category</Label>
-                <Select 
-                  value={currentProject.category}
-                  onValueChange={(value) => setCurrentProject({...currentProject, category: value})}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Branding & Identity">Branding & Identity</SelectItem>
-                    <SelectItem value="Web & UI/UX Design">Web & UI/UX Design</SelectItem>
-                    <SelectItem value="Digital Marketing & Growth">Digital Marketing & Growth</SelectItem>
-                    <SelectItem value="Mobile App Development">Mobile App Development</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea 
-                  id="description" 
-                  value={currentProject.description} 
-                  onChange={(e) => setCurrentProject({...currentProject, description: e.target.value})}
-                  rows={4}
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="image">Image URL</Label>
-                <Input 
-                  id="image" 
-                  value={currentProject.image} 
-                  onChange={(e) => setCurrentProject({...currentProject, image: e.target.value})}
-                  required
-                />
-              </div>
-              
-              <div className="flex gap-2 justify-end">
-                <Button type="button" variant="outline" onClick={handleCancel}>
-                  Cancel
-                </Button>
-                <Button type="submit">
-                  {currentProject.id !== 0 ? "Update Project" : "Add Project"}
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
+        <ProjectForm 
+          initialProject={currentProject}
+          onSubmit={handleSubmit}
+          onCancel={handleCancel}
+        />
       ) : (
-        <div className="bg-white rounded-lg border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Image</TableHead>
-                <TableHead>Title</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {projects.map((project) => (
-                <TableRow key={project.id}>
-                  <TableCell className="w-24">
-                    <img 
-                      src={project.image} 
-                      alt={project.title} 
-                      className="w-20 h-16 object-cover rounded"
-                    />
-                  </TableCell>
-                  <TableCell className="font-medium">{project.title}</TableCell>
-                  <TableCell>{project.category}</TableCell>
-                  <TableCell className="max-w-xs truncate">{project.description}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button size="sm" variant="ghost" onClick={() => handleEdit(project)}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button size="sm" variant="ghost" onClick={() => handleDelete(project.id)}>
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+        <ProjectList 
+          projects={projects}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
       )}
     </div>
   );
