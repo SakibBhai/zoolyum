@@ -34,18 +34,16 @@ const Navbar = () => {
 
   const navLinks = [
     { name: "Home", href: "/" },
-    { name: "About", href: "/#about", section: "about" },
+    { name: "About Us", href: "/#about", section: "about" },
     { name: "Services", href: "/#services", section: "services" },
     { name: "Portfolio", href: "/#portfolio", section: "portfolio" },
-    { name: "Case Studies", href: "/#case-studies", section: "case-studies" },
     { name: "Blog", href: "/#blog", section: "blog" },
-    { name: "Contact", href: "/#contact", section: "contact" },
   ];
 
   return (
     <nav
       className={`fixed w-full z-50 transition-all duration-300 ${
-        isScrolled ? "py-3 glass shadow-lg" : "py-4 bg-transparent"
+        isScrolled ? "py-3 bg-white shadow-sm" : "py-4 bg-white"
       }`}
     >
       <div className="container mx-auto px-4">
@@ -54,12 +52,12 @@ const Navbar = () => {
             <img 
               src="/lovable-uploads/d8065ca3-8770-4547-bd54-2883754725d0.png" 
               alt="Zoolyum Logo" 
-              className="h-10 md:h-12"
+              className="h-8 md:h-10"
             />
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6">
+          <div className="hidden md:flex items-center space-x-8">
             {navLinks.map((link) => (
               link.section ? (
                 <a
@@ -71,7 +69,7 @@ const Navbar = () => {
                       scrollToSection(link.section!);
                     }
                   }}
-                  className="text-secondary hover:text-primary transition-colors duration-300"
+                  className="text-gray-700 hover:text-primary transition-colors duration-300 text-sm font-medium"
                 >
                   {link.name}
                 </a>
@@ -79,7 +77,7 @@ const Navbar = () => {
                 <Link
                   key={link.name}
                   to={link.href}
-                  className="text-secondary hover:text-primary transition-colors duration-300"
+                  className="text-gray-700 hover:text-primary transition-colors duration-300 text-sm font-medium"
                 >
                   {link.name}
                 </Link>
@@ -93,7 +91,7 @@ const Navbar = () => {
                   scrollToSection('contact');
                 }
               }}
-              className="px-6 py-2 bg-primary text-white rounded-full hover:bg-primary-hover transition-colors duration-300"
+              className="px-5 py-2 bg-primary text-white rounded-md hover:bg-primary-hover transition-colors duration-300 text-sm font-medium"
             >
               Get Started
             </a>
@@ -102,7 +100,7 @@ const Navbar = () => {
           {/* Mobile Navigation Toggle */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden text-secondary hover:text-primary transition-colors"
+            className="md:hidden text-gray-700 hover:text-primary transition-colors"
           >
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -120,7 +118,7 @@ const Navbar = () => {
                     e.preventDefault();
                     scrollToSection(link.section!);
                   }}
-                  className="block py-2 text-secondary hover:text-primary transition-colors duration-300"
+                  className="block py-2 text-gray-700 hover:text-primary transition-colors duration-300"
                 >
                   {link.name}
                 </a>
@@ -128,7 +126,7 @@ const Navbar = () => {
                 <Link
                   key={link.name}
                   to={link.href}
-                  className="block py-2 text-secondary hover:text-primary transition-colors duration-300"
+                  className="block py-2 text-gray-700 hover:text-primary transition-colors duration-300"
                   onClick={() => setIsOpen(false)}
                 >
                   {link.name}
@@ -142,7 +140,7 @@ const Navbar = () => {
                 scrollToSection('contact');
                 setIsOpen(false);
               }}
-              className="block mt-4 px-6 py-2 bg-primary text-white text-center rounded-full hover:bg-primary-hover transition-colors duration-300"
+              className="block mt-4 px-5 py-2 bg-primary text-white text-center rounded-md hover:bg-primary-hover transition-colors duration-300"
             >
               Get Started
             </a>

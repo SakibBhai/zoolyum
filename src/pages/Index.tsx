@@ -1,15 +1,14 @@
 
 import { useEffect } from "react";
-import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
-import Services from "@/components/Services";
-import About from "@/components/About";
-import Contact from "@/components/Contact";
+import StrategySection from "@/components/StrategySection";
+import BuildFuture from "@/components/BuildFuture";
+import TailorMade from "@/components/TailorMade";
+import FAQ from "@/components/FAQ";
+import Footer from "@/components/Footer";
 import { Toaster } from "@/components/ui/toaster";
-import PortfolioPreview from "@/components/PortfolioPreview";
-import CaseStudyPreview from "@/components/CaseStudyPreview";
-import BlogPreview from "@/components/BlogPreview";
+import Contact from "@/components/Contact";
 
 const Index = () => {
   useEffect(() => {
@@ -33,23 +32,12 @@ const Index = () => {
     <div className="min-h-screen">
       <Navbar />
       <Hero />
-      <Services />
-      <About />
-      <PortfolioPreview />
-      <CaseStudyPreview />
-      <BlogPreview />
+      <StrategySection />
+      <BuildFuture />
+      <TailorMade />
+      <FAQ />
       <Contact />
-      <footer className="bg-secondary text-white py-4 text-center">
-        <div className="container mx-auto px-4">
-          <p className="text-sm opacity-70">© {new Date().getFullYear()} Creative Agency. All rights reserved.</p>
-          <Link 
-            to="/admin" 
-            className="text-xs opacity-50 hover:opacity-100 transition-opacity mt-1 inline-block"
-          >
-            Site Admin
-          </Link>
-        </div>
-      </footer>
+      <Footer />
       <Toaster />
     </div>
   );

@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Mail, MessageSquare, Send } from "lucide-react";
+import { ArrowRight, Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const Contact = () => {
@@ -48,61 +48,22 @@ const Contact = () => {
   };
 
   return (
-    <section id="contact" className="py-20 px-4 bg-secondary/5">
+    <section id="contact" className="py-20 px-4 bg-gray-50">
       <div className="container mx-auto">
-        <div className="text-center">
-          <span className="px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
-            Contact Us
-          </span>
-          <h2 className="mt-8 text-3xl md:text-4xl font-bold text-secondary">
-            Let's Create Something Amazing
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-8">
+            Ready to transform your business?
           </h2>
-          <p className="mt-4 text-secondary/80 max-w-2xl mx-auto">
-            Ready to transform your brand? Get in touch with us and let's discuss
-            how we can help you achieve your goals.
+          <p className="text-gray-600 text-center mb-12 max-w-xl mx-auto">
+            Get in touch with our team to discuss how we can help elevate your brand and drive growth.
           </p>
-        </div>
 
-        <div className="mt-12 max-w-3xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-            {[
-              {
-                icon: <Mail className="h-6 w-6" />,
-                title: "Email Us",
-                description: "hello@zoolyum.com",
-                link: "mailto:hello@zoolyum.com",
-              },
-              {
-                icon: <MessageSquare className="h-6 w-6" />,
-                title: "Call Us",
-                description: "+1 (555) 123-4567",
-                link: "tel:+15551234567",
-              },
-            ].map((item, index) => (
-              <a
-                key={index}
-                href={item.link}
-                className="p-6 rounded-2xl glass hover:shadow-lg transition-all duration-300 flex items-start space-x-4"
-              >
-                <div className="rounded-full bg-primary/10 p-3 text-primary">
-                  {item.icon}
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-secondary">
-                    {item.title}
-                  </h3>
-                  <p className="mt-1 text-secondary/70">{item.description}</p>
-                </div>
-              </a>
-            ))}
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6 bg-white p-8 rounded-lg shadow-sm">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label
                   htmlFor="name"
-                  className="block text-sm font-medium text-secondary/80 mb-2"
+                  className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   Your Name
                 </label>
@@ -113,14 +74,14 @@ const Contact = () => {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 rounded-lg glass border-0 focus:ring-2 focus:ring-primary/20 transition-shadow"
+                  className="w-full px-4 py-3 rounded-md border border-gray-200 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                   placeholder="John Doe"
                 />
               </div>
               <div>
                 <label
                   htmlFor="email"
-                  className="block text-sm font-medium text-secondary/80 mb-2"
+                  className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   Your Email
                 </label>
@@ -131,7 +92,7 @@ const Contact = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 rounded-lg glass border-0 focus:ring-2 focus:ring-primary/20 transition-shadow"
+                  className="w-full px-4 py-3 rounded-md border border-gray-200 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                   placeholder="john@example.com"
                 />
               </div>
@@ -139,7 +100,7 @@ const Contact = () => {
             <div>
               <label
                 htmlFor="message"
-                className="block text-sm font-medium text-secondary/80 mb-2"
+                className="block text-sm font-medium text-gray-700 mb-2"
               >
                 Your Message
               </label>
@@ -149,19 +110,21 @@ const Contact = () => {
                 value={formData.message}
                 onChange={handleChange}
                 required
-                rows={6}
-                className="w-full px-4 py-3 rounded-lg glass border-0 focus:ring-2 focus:ring-primary/20 transition-shadow resize-none"
+                rows={4}
+                className="w-full px-4 py-3 rounded-md border border-gray-200 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"
                 placeholder="Tell us about your project..."
               />
             </div>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full md:w-auto px-8 py-3 bg-primary text-white rounded-full hover:bg-primary-hover transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:hover:scale-100"
-            >
-              <span>Send Message</span>
-              <Send className="h-5 w-5" />
-            </button>
+            <div className="flex justify-end">
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="px-6 py-3 bg-primary text-white rounded-md hover:bg-primary-hover transition-all duration-300 flex items-center space-x-2 disabled:opacity-50"
+              >
+                <span>Send Message</span>
+                <ArrowRight className="h-5 w-5" />
+              </button>
+            </div>
           </form>
         </div>
       </div>
