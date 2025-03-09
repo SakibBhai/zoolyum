@@ -10,6 +10,8 @@ import { Toaster } from "@/components/ui/toaster";
 import PortfolioPreview from "@/components/PortfolioPreview";
 import CaseStudyPreview from "@/components/CaseStudyPreview";
 import BlogPreview from "@/components/BlogPreview";
+import FAQ from "@/components/FAQ";
+import { Helmet } from "react-helmet";
 
 const Index = () => {
   useEffect(() => {
@@ -31,17 +33,35 @@ const Index = () => {
 
   return (
     <div className="min-h-screen">
+      <Helmet>
+        <title>Zoolyum | Creative Agency for Digital Excellence</title>
+        <meta name="description" content="Zoolyum is a full-service creative agency specializing in branding, web design, digital marketing, and content creation to help businesses achieve growth and success." />
+        <meta name="keywords" content="creative agency, branding, web design, digital marketing, content creation, business growth" />
+        <meta property="og:title" content="Zoolyum | Creative Agency for Digital Excellence" />
+        <meta property="og:description" content="Elevate your brand with our comprehensive creative and digital services." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://zoolyum.com" />
+        <meta property="og:image" content="/lovable-uploads/d8065ca3-8770-4547-bd54-2883754725d0.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Zoolyum | Creative Agency" />
+        <meta name="twitter:description" content="Elevate your brand with our comprehensive creative and digital services." />
+        <link rel="canonical" href="https://zoolyum.com" />
+      </Helmet>
+      
       <Navbar />
-      <Hero />
-      <Services />
-      <About />
-      <PortfolioPreview />
-      <CaseStudyPreview />
-      <BlogPreview />
-      <Contact />
+      <main>
+        <Hero />
+        <Services />
+        <About />
+        <PortfolioPreview />
+        <CaseStudyPreview />
+        <BlogPreview />
+        <FAQ />
+        <Contact />
+      </main>
       <footer className="bg-secondary text-white py-4 text-center">
         <div className="container mx-auto px-4">
-          <p className="text-sm opacity-70">© {new Date().getFullYear()} Creative Agency. All rights reserved.</p>
+          <p className="text-sm opacity-70">© {new Date().getFullYear()} Zoolyum Creative Agency. All rights reserved.</p>
           <Link 
             to="/admin" 
             className="text-xs opacity-50 hover:opacity-100 transition-opacity mt-1 inline-block"
