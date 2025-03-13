@@ -6,7 +6,6 @@ import Hero from "@/components/Hero";
 import Services from "@/components/Services";
 import About from "@/components/About";
 import Contact from "@/components/Contact";
-import { Toaster } from "@/components/ui/toaster";
 import PortfolioPreview from "@/components/PortfolioPreview";
 import CaseStudyPreview from "@/components/CaseStudyPreview";
 import BlogPreview from "@/components/BlogPreview";
@@ -70,7 +69,6 @@ const Index = () => {
           </Link>
         </div>
       </footer>
-      <Toaster />
     </div>
   );
 };
