@@ -295,7 +295,7 @@ const AdminCaseStudies = () => {
                   Cancel
                 </Button>
                 <Button type="submit">
-                  {currentCase.id !== 0 ? "Update Case Study" : "Add Case Study"}
+                  {currentCase.id ? "Update Case Study" : "Add Case Study"}
                 </Button>
               </div>
             </form>

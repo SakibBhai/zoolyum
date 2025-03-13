@@ -91,7 +91,7 @@ const ProjectForm = ({ initialProject, onSubmit, onCancel }: ProjectFormProps) =
               Cancel
             </Button>
             <Button type="submit">
-              {project.id !== 0 ? "Update Project" : "Add Project"}
+              {project.id ? "Update Project" : "Add Project"}
             </Button>
           </div>
         </form>

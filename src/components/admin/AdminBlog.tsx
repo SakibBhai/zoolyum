@@ -301,7 +301,7 @@ const AdminBlog = () => {
                   Cancel
                 </Button>
                 <Button type="submit">
-                  {currentPost.id !== 0 ? "Update Post" : "Publish Post"}
+                  {currentPost.id ? "Update Post" : "Publish Post"}
                 </Button>
               </div>
             </form>
