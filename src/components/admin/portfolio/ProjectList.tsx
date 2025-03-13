@@ -10,7 +10,7 @@ import {
 import ProjectItem from "./ProjectItem";
 
 interface Project {
-  id: number;
+  id: string;
   title: string;
   category: string;
   description: string;
@@ -20,7 +20,7 @@ interface Project {
 interface ProjectListProps {
   projects: Project[];
   onEdit: (project: Project) => void;
-  onDelete: (id: number) => void;
+  onDelete: (id: string) => void;
 }
 
 const ProjectList = ({ projects, onEdit, onDelete }: ProjectListProps) => {

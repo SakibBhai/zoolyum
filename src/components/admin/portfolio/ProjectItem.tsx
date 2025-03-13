@@ -4,7 +4,7 @@ import { TableCell, TableRow } from "@/components/ui/table";
 import { Pencil, Trash2 } from "lucide-react";
 
 interface Project {
-  id: number;
+  id: string;
   title: string;
   category: string;
   description: string;
@@ -14,7 +14,7 @@ interface Project {
 interface ProjectItemProps {
   project: Project;
   onEdit: (project: Project) => void;
-  onDelete: (id: number) => void;
+  onDelete: (id: string) => void;
 }
 
 const ProjectItem = ({ project, onEdit, onDelete }: ProjectItemProps) => {

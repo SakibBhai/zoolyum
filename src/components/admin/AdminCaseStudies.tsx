@@ -20,7 +20,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 // Case study interface
 interface CaseStudy {
-  id: string | number;
+  id: string;
   title: string;
   industry: string;
   summary: string;
@@ -34,7 +34,7 @@ const AdminCaseStudies = () => {
   const [caseStudies, setCaseStudies] = useState<CaseStudy[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [currentCase, setCurrentCase] = useState<CaseStudy>({
-    id: 0,
+    id: "",
     title: "",
     industry: "",
     summary: "",
@@ -79,7 +79,7 @@ const AdminCaseStudies = () => {
   const handleAddNew = () => {
     setIsEditing(true);
     setCurrentCase({
-      id: 0,
+      id: "",
       title: "",
       industry: "",
       summary: "",
@@ -95,7 +95,7 @@ const AdminCaseStudies = () => {
     setCurrentCase(caseStudy);
   };
 
-  const handleDelete = async (id: string | number) => {
+  const handleDelete = async (id: string) => {
     try {
       const { error } = await supabase
         .from('case_studies')
@@ -125,7 +125,7 @@ const AdminCaseStudies = () => {
     e.preventDefault();
     
     try {
-      if (currentCase.id !== 0) {
+      if (currentCase.id) {
         // Update existing case study
         const { error } = await supabase
           .from('case_studies')
@@ -184,12 +184,12 @@ const AdminCaseStudies = () => {
     }
     
     setIsEditing(false);
-    setCurrentCase({ id: 0, title: "", industry: "", summary: "", challenge: "", solution: "", results: "", image: "" });
+    setCurrentCase({ id: "", title: "", industry: "", summary: "", challenge: "", solution: "", results: "", image: "" });
   };
 
   const handleCancel = () => {
     setIsEditing(false);
-    setCurrentCase({ id: 0, title: "", industry: "", summary: "", challenge: "", solution: "", results: "", image: "" });
+    setCurrentCase({ id: "", title: "", industry: "", summary: "", challenge: "", solution: "", results: "", image: "" });
   };
 
   return (

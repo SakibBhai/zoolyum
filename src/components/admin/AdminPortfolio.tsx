@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 // Define the Project type
 interface Project {
-  id: number | string;
+  id: string;
   title: string;
   category: string;
   description: string;
@@ -17,7 +17,7 @@ interface Project {
 }
 
 const emptyProject: Project = {
-  id: 0,
+  id: "",
   title: "",
   category: "",
   description: "",
@@ -64,7 +64,7 @@ const AdminPortfolio = () => {
   const handleAddNew = () => {
     setIsEditing(true);
     setCurrentProject({
-      id: 0,
+      id: "",
       title: "",
       category: "",
       description: "",
@@ -77,7 +77,7 @@ const AdminPortfolio = () => {
     setCurrentProject(project);
   };
 
-  const handleDelete = async (id: number | string) => {
+  const handleDelete = async (id: string) => {
     try {
       const { error } = await supabase
         .from('portfolio_projects')
@@ -105,7 +105,7 @@ const AdminPortfolio = () => {
 
   const handleSubmit = async (updatedProject: Project) => {
     try {
-      if (updatedProject.id !== 0) {
+      if (updatedProject.id) {
         // Update existing project
         const { error } = await supabase
           .from('portfolio_projects')

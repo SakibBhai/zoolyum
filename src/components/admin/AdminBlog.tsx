@@ -20,7 +20,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 // Blog post interface
 interface BlogPost {
-  id: string | number;
+  id: string;
   title: string;
   category: string;
   excerpt: string;
@@ -34,7 +34,7 @@ const AdminBlog = () => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [currentPost, setCurrentPost] = useState<BlogPost>({
-    id: 0,
+    id: "",
     title: "",
     category: "",
     excerpt: "",
@@ -79,7 +79,7 @@ const AdminBlog = () => {
   const handleAddNew = () => {
     setIsEditing(true);
     setCurrentPost({
-      id: 0,
+      id: "",
       title: "",
       category: "",
       excerpt: "",
@@ -95,7 +95,7 @@ const AdminBlog = () => {
     setCurrentPost(post);
   };
 
-  const handleDelete = async (id: string | number) => {
+  const handleDelete = async (id: string) => {
     try {
       const { error } = await supabase
         .from('blog_posts')
@@ -125,7 +125,7 @@ const AdminBlog = () => {
     e.preventDefault();
     
     try {
-      if (currentPost.id !== 0) {
+      if (currentPost.id) {
         // Update existing post
         const { error } = await supabase
           .from('blog_posts')
@@ -184,12 +184,12 @@ const AdminBlog = () => {
     }
     
     setIsEditing(false);
-    setCurrentPost({ id: 0, title: "", category: "", excerpt: "", content: "", author: "", date: "", image: "" });
+    setCurrentPost({ id: "", title: "", category: "", excerpt: "", content: "", author: "", date: "", image: "" });
   };
 
   const handleCancel = () => {
     setIsEditing(false);
-    setCurrentPost({ id: 0, title: "", category: "", excerpt: "", content: "", author: "", date: "", image: "" });
+    setCurrentPost({ id: "", title: "", category: "", excerpt: "", content: "", author: "", date: "", image: "" });
   };
 
   const handlePreview = (post: BlogPost) => {
