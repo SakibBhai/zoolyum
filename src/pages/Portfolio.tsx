@@ -6,104 +6,107 @@ import { Code, Layout, Image, Film, PenTool, Palette, ExternalLink, ArrowRight }
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+
+interface Project {
+  id: string;
+  title: string;
+  category: string;
+  description: string;
+  image: string;
+  tags?: string[];
+  icon?: React.ReactNode;
+}
 
 const Portfolio = () => {
   const [filter, setFilter] = useState("All");
-  const [displayedProjects, setDisplayedProjects] = useState([]);
+  const [displayedProjects, setDisplayedProjects] = useState<Project[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
-  const projects = [
-    {
-      id: 1,
-      title: "Luxury Brand Redesign",
-      category: "Branding & Identity",
-      description: "Complete rebranding for a premium jewelry company, including logo design, brand guidelines, and marketing materials.",
-      image: "https://images.unsplash.com/photo-1483058712412-4245e9b90334?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-      tags: ["Branding", "Logo Design", "Brand Strategy"],
-      icon: <Palette className="h-6 w-6 text-primary" />
-    },
-    {
-      id: 2,
-      title: "E-commerce Growth Campaign",
-      category: "Digital Marketing & Growth",
-      description: "Implemented a comprehensive digital marketing strategy that increased online sales by 78% in just three months.",
-      image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-      tags: ["Social Media", "PPC", "SEO"],
-      icon: <Layout className="h-6 w-6 text-primary" />
-    },
-    {
-      id: 3,
-      title: "Premium Real Estate Website",
-      category: "Web & UI/UX Design",
-      description: "Designed and developed a conversion-optimized website for a luxury real estate agency with virtual tour integration.",
-      image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-      tags: ["Web Design", "UI/UX", "Development"],
-      icon: <Code className="h-6 w-6 text-primary" />
-    },
-    {
-      id: 4,
-      title: "Executive Brand Storytelling",
-      category: "Content Creation & Storytelling",
-      description: "Created a compelling brand story and content strategy for a high-profile tech CEO, boosting their industry presence.",
-      image: "https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-      tags: ["Storytelling", "Content Strategy", "Personal Branding"],
-      icon: <PenTool className="h-6 w-6 text-primary" />
-    },
-    {
-      id: 5,
-      title: "Video Marketing Campaign",
-      category: "Content Creation & Storytelling",
-      description: "Produced a series of viral video content that generated over 2 million views and significantly increased brand awareness.",
-      image: "https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-      tags: ["Video Production", "Social Media", "Viral Marketing"],
-      icon: <Film className="h-6 w-6 text-primary" />
-    },
-    {
-      id: 6,
-      title: "SaaS Platform Interface Design",
-      category: "Web & UI/UX Design",
-      description: "Redesigned the user interface for a SaaS platform, improving user experience and reducing churn rate by 45%.",
-      image: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-      tags: ["UI/UX", "SaaS", "Web Application"],
-      icon: <Image className="h-6 w-6 text-primary" />
-    },
-    {
-      id: 7,
-      title: "Fashion Brand Photography",
-      category: "Branding & Identity",
-      description: "Curated and produced a stunning photography series for a high-end fashion brand's seasonal collection launch.",
-      image: "https://images.unsplash.com/photo-1540221652346-e5dd6b50f3e7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-      tags: ["Photography", "Fashion", "Art Direction"],
-      icon: <Palette className="h-6 w-6 text-primary" />
-    },
-    {
-      id: 8,
-      title: "Mobile App Development",
-      category: "Web & UI/UX Design",
-      description: "Designed and developed a fitness tracking mobile application with personalized workout routines and progress analytics.",
-      image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-      tags: ["Mobile Design", "UX Research", "Development"],
-      icon: <Code className="h-6 w-6 text-primary" />
-    },
-    {
-      id: 9,
-      title: "SEO Optimization Campaign",
-      category: "Digital Marketing & Growth",
-      description: "Implemented a comprehensive SEO strategy that increased organic traffic by 156% and first-page rankings for 45 keywords.",
-      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-      tags: ["SEO", "Content Marketing", "Analytics"],
-      icon: <Layout className="h-6 w-6 text-primary" />
-    },
-  ];
+  // Fetch projects from Supabase
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        setIsLoading(true);
+        const { data, error } = await supabase
+          .from('portfolio_projects')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (error) {
+          throw error;
+        }
+        
+        // Process the data to add tags and icons based on categories
+        const processedProjects: Project[] = data.map(project => {
+          let icon;
+          let tags: string[] = [];
+          
+          // Assign icon based on category
+          if (project.category.includes("Branding")) {
+            icon = <Palette className="h-6 w-6 text-primary" />;
+            tags = ["Branding", "Logo Design", "Brand Strategy"];
+          } else if (project.category.includes("Web")) {
+            icon = <Code className="h-6 w-6 text-primary" />;
+            tags = ["Web Design", "UI/UX", "Development"];
+          } else if (project.category.includes("Digital Marketing")) {
+            icon = <Layout className="h-6 w-6 text-primary" />;
+            tags = ["Social Media", "PPC", "SEO"];
+          } else if (project.category.includes("Content")) {
+            icon = project.category.includes("Video") ? 
+              <Film className="h-6 w-6 text-primary" /> : 
+              <PenTool className="h-6 w-6 text-primary" />;
+            tags = ["Content Strategy", "Storytelling", "Copywriting"];
+          } else {
+            icon = <Image className="h-6 w-6 text-primary" />;
+            tags = ["Design", "Creative", "Visual"];
+          }
+          
+          return {
+            ...project,
+            tags,
+            icon
+          };
+        });
+        
+        setProjects(processedProjects);
+        setDisplayedProjects(processedProjects);
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+        toast({
+          title: "Error loading projects",
+          description: "Failed to load portfolio projects. Please try again later.",
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, [toast]);
 
   // Get unique categories for filter buttons
-  const categories = ["All", ...new Set(projects.map(project => 
-    project.category === "Branding & Identity" ? "Branding" : 
-    project.category === "Web & UI/UX Design" ? "Web Design" : 
-    project.category === "Digital Marketing & Growth" ? "Marketing" : 
-    project.category === "Content Creation & Storytelling" ? "Content" : 
-    project.category
-  ))];
+  const getCategories = () => {
+    const categorySet = new Set<string>();
+    categorySet.add("All");
+    
+    projects.forEach(project => {
+      if (project.category.includes("Branding")) {
+        categorySet.add("Branding");
+      } else if (project.category.includes("Web")) {
+        categorySet.add("Web Design");
+      } else if (project.category.includes("Digital Marketing")) {
+        categorySet.add("Marketing");
+      } else if (project.category.includes("Content")) {
+        categorySet.add("Content");
+      }
+    });
+    
+    return Array.from(categorySet);
+  };
 
   // Filter projects based on selected category
   useEffect(() => {
@@ -112,10 +115,10 @@ const Portfolio = () => {
         setDisplayedProjects(projects);
       } else {
         const filtered = projects.filter(project => {
-          if (filter === "Branding") return project.category === "Branding & Identity";
-          if (filter === "Web Design") return project.category === "Web & UI/UX Design";
-          if (filter === "Marketing") return project.category === "Digital Marketing & Growth";
-          if (filter === "Content") return project.category === "Content Creation & Storytelling";
+          if (filter === "Branding") return project.category.includes("Branding");
+          if (filter === "Web Design") return project.category.includes("Web");
+          if (filter === "Marketing") return project.category.includes("Digital Marketing");
+          if (filter === "Content") return project.category.includes("Content");
           return project.category === filter;
         });
         setDisplayedProjects(filtered);
@@ -143,7 +146,7 @@ const Portfolio = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleViewProject = (projectId) => {
+  const handleViewProject = (projectId: string) => {
     toast({
       title: "Project Details",
       description: "Project details page coming soon!",
@@ -173,7 +176,7 @@ const Portfolio = () => {
 
           {/* Filter - now functional */}
           <div className="flex flex-wrap justify-center gap-3 mb-12 fade-up">
-            {categories.map((category) => (
+            {getCategories().map((category) => (
               <button
                 key={category}
                 onClick={() => setFilter(category)}
@@ -188,54 +191,64 @@ const Portfolio = () => {
             ))}
           </div>
 
-          {/* Projects Grid with animation */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {displayedProjects.map((project, index) => (
-              <div 
-                key={project.id} 
-                className="group bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 fade-up"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <div className="relative h-60 overflow-hidden">
-                  <img 
-                    src={project.image} 
-                    alt={project.title} 
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
-                    <button 
-                      onClick={() => handleViewProject(project.id)} 
-                      className="text-white flex items-center gap-2 font-medium hover:text-primary-hover transition-colors"
-                    >
-                      View Project <ExternalLink className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-                <div className="p-6">
-                  <div className="flex items-center mb-3">
-                    {project.icon}
-                    <span className="ml-2 text-sm font-medium text-gray-500">{project.category}</span>
-                  </div>
-                  <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">{project.title}</h3>
-                  <p className="text-gray-600 mb-4 line-clamp-3">{project.description}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {project.tags.map((tag, index) => (
-                      <span key={index} className="text-xs px-3 py-1 bg-gray-100 rounded-full text-gray-700">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Show message if no projects match filter */}
-          {displayedProjects.length === 0 && (
-            <div className="text-center py-16">
-              <h3 className="text-xl font-semibold text-gray-700 mb-2">No projects found</h3>
-              <p className="text-gray-500">Try selecting a different category filter</p>
+          {isLoading ? (
+            <div className="flex justify-center py-16">
+              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary"></div>
             </div>
+          ) : (
+            <>
+              {/* Projects Grid with animation */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {displayedProjects.map((project, index) => (
+                  <div 
+                    key={project.id} 
+                    className="group bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 fade-up"
+                    style={{ animationDelay: `${index * 100}ms` }}
+                  >
+                    <div className="relative h-60 overflow-hidden">
+                      <img 
+                        src={project.image} 
+                        alt={project.title} 
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                        <button 
+                          onClick={() => handleViewProject(project.id)} 
+                          className="text-white flex items-center gap-2 font-medium hover:text-primary-hover transition-colors"
+                        >
+                          View Project <ExternalLink className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="p-6">
+                      <div className="flex items-center mb-3">
+                        {project.icon}
+                        <span className="ml-2 text-sm font-medium text-gray-500">{project.category}</span>
+                      </div>
+                      <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">{project.title}</h3>
+                      <p className="text-gray-600 mb-4 line-clamp-3">{project.description}</p>
+                      {project.tags && (
+                        <div className="flex flex-wrap gap-2">
+                          {project.tags.map((tag, index) => (
+                            <span key={index} className="text-xs px-3 py-1 bg-gray-100 rounded-full text-gray-700">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Show message if no projects match filter */}
+              {displayedProjects.length === 0 && !isLoading && (
+                <div className="text-center py-16">
+                  <h3 className="text-xl font-semibold text-gray-700 mb-2">No projects found</h3>
+                  <p className="text-gray-500">Try selecting a different category filter</p>
+                </div>
+              )}
+            </>
           )}
 
           {/* Testimonials Section */}

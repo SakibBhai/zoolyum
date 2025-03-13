@@ -1,44 +1,20 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import ProjectForm from "./portfolio/ProjectForm";
 import ProjectList from "./portfolio/ProjectList";
+import { supabase } from "@/integrations/supabase/client";
 
 // Define the Project type
 interface Project {
-  id: number;
+  id: number | string;
   title: string;
   category: string;
   description: string;
   image: string;
 }
-
-// Sample data - in a real app, this would come from a database
-const initialProjects = [
-  {
-    id: 1,
-    title: "Luxury Brand Redesign",
-    category: "Branding & Identity",
-    description: "Complete rebranding for a premium jewelry company, including logo design, brand guidelines, and marketing materials.",
-    image: "https://images.unsplash.com/photo-1483058712412-4245e9b90334?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    id: 2,
-    title: "E-commerce Growth Campaign",
-    category: "Digital Marketing & Growth",
-    description: "Implemented a comprehensive digital marketing strategy that increased online sales by 78% in just three months.",
-    image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    id: 3,
-    title: "Premium Real Estate Website",
-    category: "Web & UI/UX Design",
-    description: "Designed and developed a conversion-optimized website for a luxury real estate agency with virtual tour integration.",
-    image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-  },
-];
 
 const emptyProject: Project = {
   id: 0,
@@ -49,15 +25,46 @@ const emptyProject: Project = {
 };
 
 const AdminPortfolio = () => {
-  const [projects, setProjects] = useState<Project[]>(initialProjects);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [currentProject, setCurrentProject] = useState<Project>(emptyProject);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+
+  // Fetch projects from Supabase
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        setIsLoading(true);
+        const { data, error } = await supabase
+          .from('portfolio_projects')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (error) {
+          throw error;
+        }
+        
+        setProjects(data || []);
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+        toast({
+          title: "Error fetching projects",
+          description: error.message,
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, [toast]);
 
   const handleAddNew = () => {
     setIsEditing(true);
     setCurrentProject({
-      id: Date.now(), // Simple ID generation
+      id: 0,
       title: "",
       category: "",
       description: "",
@@ -70,28 +77,83 @@ const AdminPortfolio = () => {
     setCurrentProject(project);
   };
 
-  const handleDelete = (id: number) => {
-    setProjects(projects.filter(project => project.id !== id));
-    toast({
-      title: "Project deleted",
-      description: "The project has been removed successfully",
-    });
+  const handleDelete = async (id: number | string) => {
+    try {
+      const { error } = await supabase
+        .from('portfolio_projects')
+        .delete()
+        .eq('id', id);
+      
+      if (error) {
+        throw error;
+      }
+      
+      setProjects(projects.filter(project => project.id !== id));
+      toast({
+        title: "Project deleted",
+        description: "The project has been removed successfully",
+      });
+    } catch (error) {
+      console.error('Error deleting project:', error);
+      toast({
+        title: "Error deleting project",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleSubmit = (updatedProject: Project) => {
-    if (projects.some(p => p.id === updatedProject.id)) {
-      // Update existing project
-      setProjects(projects.map(p => p.id === updatedProject.id ? updatedProject : p));
+  const handleSubmit = async (updatedProject: Project) => {
+    try {
+      if (updatedProject.id !== 0) {
+        // Update existing project
+        const { error } = await supabase
+          .from('portfolio_projects')
+          .update({
+            title: updatedProject.title,
+            category: updatedProject.category,
+            description: updatedProject.description,
+            image: updatedProject.image
+          })
+          .eq('id', updatedProject.id);
+        
+        if (error) {
+          throw error;
+        }
+        
+        setProjects(projects.map(p => p.id === updatedProject.id ? updatedProject : p));
+        toast({
+          title: "Project updated",
+          description: "The project has been updated successfully",
+        });
+      } else {
+        // Add new project
+        const { data, error } = await supabase
+          .from('portfolio_projects')
+          .insert({
+            title: updatedProject.title,
+            category: updatedProject.category,
+            description: updatedProject.description,
+            image: updatedProject.image
+          })
+          .select();
+        
+        if (error) {
+          throw error;
+        }
+        
+        setProjects([...projects, data[0]]);
+        toast({
+          title: "Project added",
+          description: "The new project has been added successfully",
+        });
+      }
+    } catch (error) {
+      console.error('Error saving project:', error);
       toast({
-        title: "Project updated",
-        description: "The project has been updated successfully",
-      });
-    } else {
-      // Add new project
-      setProjects([...projects, updatedProject]);
-      toast({
-        title: "Project added",
-        description: "The new project has been added successfully",
+        title: "Error saving project",
+        description: error.message,
+        variant: "destructive"
       });
     }
     
@@ -120,11 +182,19 @@ const AdminPortfolio = () => {
           onCancel={handleCancel}
         />
       ) : (
-        <ProjectList 
-          projects={projects}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
+        <>
+          {isLoading ? (
+            <div className="flex justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            <ProjectList 
+              projects={projects}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
+          )}
+        </>
       )}
     </div>
   );

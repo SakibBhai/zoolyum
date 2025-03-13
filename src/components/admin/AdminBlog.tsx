@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,35 +16,24 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Pencil, Trash2, Plus, Eye } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
-// Sample data
-const initialPosts = [
-  {
-    id: 1,
-    title: "10 Web Design Trends for 2023",
-    category: "Design",
-    excerpt: "Discover the latest trends shaping the web design landscape in 2023.",
-    content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod, nisl eget aliquam ultricies, nunc nisl aliquet nunc, vitae aliquam nisl nunc vitae nisl. Nullam euismod, nisl eget aliquam ultricies, nunc nisl aliquet nunc, vitae aliquam nisl nunc vitae nisl.",
-    author: "Jane Smith",
-    date: "2023-06-15",
-    image: "https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    id: 2,
-    title: "How to Optimize Your Site for SEO",
-    category: "Marketing",
-    excerpt: "Learn proven strategies to improve your website's search engine rankings.",
-    content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod, nisl eget aliquam ultricies, nunc nisl aliquet nunc, vitae aliquam nisl nunc vitae nisl. Nullam euismod, nisl eget aliquam ultricies, nunc nisl aliquet nunc, vitae aliquam nisl nunc vitae nisl.",
-    author: "John Doe",
-    date: "2023-05-22",
-    image: "https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-  },
-];
+// Blog post interface
+interface BlogPost {
+  id: string | number;
+  title: string;
+  category: string;
+  excerpt: string;
+  content: string;
+  author: string;
+  date: string;
+  image: string;
+}
 
 const AdminBlog = () => {
-  const [posts, setPosts] = useState(initialPosts);
+  const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isEditing, setIsEditing] = useState(false);
-  const [currentPost, setCurrentPost] = useState({
+  const [currentPost, setCurrentPost] = useState<BlogPost>({
     id: 0,
     title: "",
     category: "",
@@ -54,12 +43,43 @@ const AdminBlog = () => {
     date: "",
     image: "",
   });
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+
+  // Fetch blog posts from Supabase
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        setIsLoading(true);
+        const { data, error } = await supabase
+          .from('blog_posts')
+          .select('*')
+          .order('date', { ascending: false });
+        
+        if (error) {
+          throw error;
+        }
+        
+        setPosts(data || []);
+      } catch (error) {
+        console.error('Error fetching blog posts:', error);
+        toast({
+          title: "Error fetching blog posts",
+          description: error.message,
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, [toast]);
 
   const handleAddNew = () => {
     setIsEditing(true);
     setCurrentPost({
-      id: Date.now(),
+      id: 0,
       title: "",
       category: "",
       excerpt: "",
@@ -70,35 +90,96 @@ const AdminBlog = () => {
     });
   };
 
-  const handleEdit = (post: typeof currentPost) => {
+  const handleEdit = (post: BlogPost) => {
     setIsEditing(true);
     setCurrentPost(post);
   };
 
-  const handleDelete = (id: number) => {
-    setPosts(posts.filter(post => post.id !== id));
-    toast({
-      title: "Post deleted",
-      description: "The blog post has been removed successfully",
-    });
+  const handleDelete = async (id: string | number) => {
+    try {
+      const { error } = await supabase
+        .from('blog_posts')
+        .delete()
+        .eq('id', id);
+      
+      if (error) {
+        throw error;
+      }
+      
+      setPosts(posts.filter(post => post.id !== id));
+      toast({
+        title: "Post deleted",
+        description: "The blog post has been removed successfully",
+      });
+    } catch (error) {
+      console.error('Error deleting blog post:', error);
+      toast({
+        title: "Error deleting blog post",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (posts.some(p => p.id === currentPost.id)) {
-      // Update existing post
-      setPosts(posts.map(p => p.id === currentPost.id ? currentPost : p));
+    try {
+      if (currentPost.id !== 0) {
+        // Update existing post
+        const { error } = await supabase
+          .from('blog_posts')
+          .update({
+            title: currentPost.title,
+            category: currentPost.category,
+            excerpt: currentPost.excerpt,
+            content: currentPost.content,
+            author: currentPost.author,
+            date: currentPost.date,
+            image: currentPost.image
+          })
+          .eq('id', currentPost.id);
+        
+        if (error) {
+          throw error;
+        }
+        
+        setPosts(posts.map(p => p.id === currentPost.id ? currentPost : p));
+        toast({
+          title: "Post updated",
+          description: "The blog post has been updated successfully",
+        });
+      } else {
+        // Add new post
+        const { data, error } = await supabase
+          .from('blog_posts')
+          .insert({
+            title: currentPost.title,
+            category: currentPost.category,
+            excerpt: currentPost.excerpt,
+            content: currentPost.content,
+            author: currentPost.author,
+            date: currentPost.date,
+            image: currentPost.image
+          })
+          .select();
+        
+        if (error) {
+          throw error;
+        }
+        
+        setPosts([...posts, data[0]]);
+        toast({
+          title: "Post added",
+          description: "The new blog post has been added successfully",
+        });
+      }
+    } catch (error) {
+      console.error('Error saving blog post:', error);
       toast({
-        title: "Post updated",
-        description: "The blog post has been updated successfully",
-      });
-    } else {
-      // Add new post
-      setPosts([...posts, currentPost]);
-      toast({
-        title: "Post added",
-        description: "The new blog post has been added successfully",
+        title: "Error saving blog post",
+        description: error.message,
+        variant: "destructive"
       });
     }
     
@@ -111,7 +192,7 @@ const AdminBlog = () => {
     setCurrentPost({ id: 0, title: "", category: "", excerpt: "", content: "", author: "", date: "", image: "" });
   };
 
-  const handlePreview = (post: typeof currentPost) => {
+  const handlePreview = (post: BlogPost) => {
     toast({
       title: "Post Preview",
       description: "This would show a preview of the post in a real implementation",
@@ -227,50 +308,58 @@ const AdminBlog = () => {
           </CardContent>
         </Card>
       ) : (
-        <div className="bg-white rounded-lg border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Image</TableHead>
-                <TableHead>Title</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Author</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {posts.map((post) => (
-                <TableRow key={post.id}>
-                  <TableCell className="w-24">
-                    <img 
-                      src={post.image} 
-                      alt={post.title} 
-                      className="w-20 h-16 object-cover rounded"
-                    />
-                  </TableCell>
-                  <TableCell className="font-medium">{post.title}</TableCell>
-                  <TableCell>{post.category}</TableCell>
-                  <TableCell>{post.author}</TableCell>
-                  <TableCell>{new Date(post.date).toLocaleDateString()}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button size="sm" variant="ghost" onClick={() => handlePreview(post)}>
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button size="sm" variant="ghost" onClick={() => handleEdit(post)}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button size="sm" variant="ghost" onClick={() => handleDelete(post.id)}>
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+        <>
+          {isLoading ? (
+            <div className="flex justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            <div className="bg-white rounded-lg border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Image</TableHead>
+                    <TableHead>Title</TableHead>
+                    <TableHead>Category</TableHead>
+                    <TableHead>Author</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {posts.map((post) => (
+                    <TableRow key={post.id}>
+                      <TableCell className="w-24">
+                        <img 
+                          src={post.image} 
+                          alt={post.title} 
+                          className="w-20 h-16 object-cover rounded"
+                        />
+                      </TableCell>
+                      <TableCell className="font-medium">{post.title}</TableCell>
+                      <TableCell>{post.category}</TableCell>
+                      <TableCell>{post.author}</TableCell>
+                      <TableCell>{new Date(post.date).toLocaleDateString()}</TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button size="sm" variant="ghost" onClick={() => handlePreview(post)}>
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={() => handleEdit(post)}>
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={() => handleDelete(post.id)}>
+                            <Trash2 className="h-4 w-4 text-red-500" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

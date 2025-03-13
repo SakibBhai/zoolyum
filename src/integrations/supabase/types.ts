@@ -9,7 +9,105 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      blog_posts: {
+        Row: {
+          author: string
+          category: string
+          content: string
+          created_at: string
+          date: string
+          excerpt: string
+          id: string
+          image: string
+          title: string
+        }
+        Insert: {
+          author: string
+          category: string
+          content: string
+          created_at?: string
+          date: string
+          excerpt: string
+          id?: string
+          image: string
+          title: string
+        }
+        Update: {
+          author?: string
+          category?: string
+          content?: string
+          created_at?: string
+          date?: string
+          excerpt?: string
+          id?: string
+          image?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      case_studies: {
+        Row: {
+          challenge: string
+          created_at: string
+          id: string
+          image: string
+          industry: string
+          results: string
+          solution: string
+          summary: string
+          title: string
+        }
+        Insert: {
+          challenge: string
+          created_at?: string
+          id?: string
+          image: string
+          industry: string
+          results: string
+          solution: string
+          summary: string
+          title: string
+        }
+        Update: {
+          challenge?: string
+          created_at?: string
+          id?: string
+          image?: string
+          industry?: string
+          results?: string
+          solution?: string
+          summary?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      portfolio_projects: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          id: string
+          image: string
+          title: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description: string
+          id?: string
+          image: string
+          title: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          image?: string
+          title?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

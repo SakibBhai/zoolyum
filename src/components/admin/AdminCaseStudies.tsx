@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,35 +16,24 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Pencil, Trash2, Plus } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
-// Sample data
-const initialCaseStudies = [
-  {
-    id: 1,
-    title: "Financial App Redesign",
-    industry: "Finance",
-    summary: "Redesigned a financial app to improve user experience and increase engagement",
-    challenge: "The client's existing app had low engagement and poor user satisfaction",
-    solution: "Complete UX overhaul with simplified flows and modern design system",
-    results: "72% increase in daily active users, 43% increase in transaction volume",
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    id: 2,
-    title: "E-commerce Conversion Optimization",
-    industry: "Retail",
-    summary: "Optimized checkout flow and product pages to increase conversion rates",
-    challenge: "High cart abandonment rates and low product page conversion",
-    solution: "Streamlined checkout process and enhanced product visualization",
-    results: "36% reduction in cart abandonment, 28% increase in overall conversions",
-    image: "https://images.unsplash.com/photo-1556742502-ec7c0e9f34b1?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-  },
-];
+// Case study interface
+interface CaseStudy {
+  id: string | number;
+  title: string;
+  industry: string;
+  summary: string;
+  challenge: string;
+  solution: string;
+  results: string;
+  image: string;
+}
 
 const AdminCaseStudies = () => {
-  const [caseStudies, setCaseStudies] = useState(initialCaseStudies);
+  const [caseStudies, setCaseStudies] = useState<CaseStudy[]>([]);
   const [isEditing, setIsEditing] = useState(false);
-  const [currentCase, setCurrentCase] = useState({
+  const [currentCase, setCurrentCase] = useState<CaseStudy>({
     id: 0,
     title: "",
     industry: "",
@@ -54,12 +43,43 @@ const AdminCaseStudies = () => {
     results: "",
     image: "",
   });
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+
+  // Fetch case studies from Supabase
+  useEffect(() => {
+    const fetchCaseStudies = async () => {
+      try {
+        setIsLoading(true);
+        const { data, error } = await supabase
+          .from('case_studies')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (error) {
+          throw error;
+        }
+        
+        setCaseStudies(data || []);
+      } catch (error) {
+        console.error('Error fetching case studies:', error);
+        toast({
+          title: "Error fetching case studies",
+          description: error.message,
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCaseStudies();
+  }, [toast]);
 
   const handleAddNew = () => {
     setIsEditing(true);
     setCurrentCase({
-      id: Date.now(),
+      id: 0,
       title: "",
       industry: "",
       summary: "",
@@ -70,35 +90,96 @@ const AdminCaseStudies = () => {
     });
   };
 
-  const handleEdit = (caseStudy: typeof currentCase) => {
+  const handleEdit = (caseStudy: CaseStudy) => {
     setIsEditing(true);
     setCurrentCase(caseStudy);
   };
 
-  const handleDelete = (id: number) => {
-    setCaseStudies(caseStudies.filter(cs => cs.id !== id));
-    toast({
-      title: "Case study deleted",
-      description: "The case study has been removed successfully",
-    });
+  const handleDelete = async (id: string | number) => {
+    try {
+      const { error } = await supabase
+        .from('case_studies')
+        .delete()
+        .eq('id', id);
+      
+      if (error) {
+        throw error;
+      }
+      
+      setCaseStudies(caseStudies.filter(cs => cs.id !== id));
+      toast({
+        title: "Case study deleted",
+        description: "The case study has been removed successfully",
+      });
+    } catch (error) {
+      console.error('Error deleting case study:', error);
+      toast({
+        title: "Error deleting case study",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (caseStudies.some(cs => cs.id === currentCase.id)) {
-      // Update existing case study
-      setCaseStudies(caseStudies.map(cs => cs.id === currentCase.id ? currentCase : cs));
+    try {
+      if (currentCase.id !== 0) {
+        // Update existing case study
+        const { error } = await supabase
+          .from('case_studies')
+          .update({
+            title: currentCase.title,
+            industry: currentCase.industry,
+            summary: currentCase.summary,
+            challenge: currentCase.challenge,
+            solution: currentCase.solution,
+            results: currentCase.results,
+            image: currentCase.image
+          })
+          .eq('id', currentCase.id);
+        
+        if (error) {
+          throw error;
+        }
+        
+        setCaseStudies(caseStudies.map(cs => cs.id === currentCase.id ? currentCase : cs));
+        toast({
+          title: "Case study updated",
+          description: "The case study has been updated successfully",
+        });
+      } else {
+        // Add new case study
+        const { data, error } = await supabase
+          .from('case_studies')
+          .insert({
+            title: currentCase.title,
+            industry: currentCase.industry,
+            summary: currentCase.summary,
+            challenge: currentCase.challenge,
+            solution: currentCase.solution,
+            results: currentCase.results,
+            image: currentCase.image
+          })
+          .select();
+        
+        if (error) {
+          throw error;
+        }
+        
+        setCaseStudies([...caseStudies, data[0]]);
+        toast({
+          title: "Case study added",
+          description: "The new case study has been added successfully",
+        });
+      }
+    } catch (error) {
+      console.error('Error saving case study:', error);
       toast({
-        title: "Case study updated",
-        description: "The case study has been updated successfully",
-      });
-    } else {
-      // Add new case study
-      setCaseStudies([...caseStudies, currentCase]);
-      toast({
-        title: "Case study added",
-        description: "The new case study has been added successfully",
+        title: "Error saving case study",
+        description: error.message,
+        variant: "destructive"
       });
     }
     
@@ -221,45 +302,53 @@ const AdminCaseStudies = () => {
           </CardContent>
         </Card>
       ) : (
-        <div className="bg-white rounded-lg border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Image</TableHead>
-                <TableHead>Title</TableHead>
-                <TableHead>Industry</TableHead>
-                <TableHead>Summary</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {caseStudies.map((cs) => (
-                <TableRow key={cs.id}>
-                  <TableCell className="w-24">
-                    <img 
-                      src={cs.image} 
-                      alt={cs.title} 
-                      className="w-20 h-16 object-cover rounded"
-                    />
-                  </TableCell>
-                  <TableCell className="font-medium">{cs.title}</TableCell>
-                  <TableCell>{cs.industry}</TableCell>
-                  <TableCell className="max-w-xs truncate">{cs.summary}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button size="sm" variant="ghost" onClick={() => handleEdit(cs)}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button size="sm" variant="ghost" onClick={() => handleDelete(cs.id)}>
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+        <>
+          {isLoading ? (
+            <div className="flex justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            <div className="bg-white rounded-lg border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Image</TableHead>
+                    <TableHead>Title</TableHead>
+                    <TableHead>Industry</TableHead>
+                    <TableHead>Summary</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {caseStudies.map((cs) => (
+                    <TableRow key={cs.id}>
+                      <TableCell className="w-24">
+                        <img 
+                          src={cs.image} 
+                          alt={cs.title} 
+                          className="w-20 h-16 object-cover rounded"
+                        />
+                      </TableCell>
+                      <TableCell className="font-medium">{cs.title}</TableCell>
+                      <TableCell>{cs.industry}</TableCell>
+                      <TableCell className="max-w-xs truncate">{cs.summary}</TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button size="sm" variant="ghost" onClick={() => handleEdit(cs)}>
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={() => handleDelete(cs.id)}>
+                            <Trash2 className="h-4 w-4 text-red-500" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

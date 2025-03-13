@@ -3,73 +3,93 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FileText, ArrowRight, Calendar, User, Clock } from "lucide-react";
 import Navbar from "../components/Navbar";
+import { supabase } from "@/integrations/supabase/client";
+
+interface CaseStudy {
+  id: string;
+  title: string;
+  industry: string;
+  summary: string;
+  challenge?: string;
+  solution?: string;
+  results?: string;
+  image: string;
+  created_at: string;
+  category?: string; // For filtering
+}
 
 const CaseStudy = () => {
   const [activeFilter, setActiveFilter] = useState("all");
   const [visibleItems, setVisibleItems] = useState<number>(3);
+  const [caseStudies, setCaseStudies] = useState<CaseStudy[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Sample case studies
-  const caseStudies = [
-    {
-      id: 1,
-      title: "Luxury Fashion Brand Rebranding",
-      category: "branding",
-      summary: "Complete brand transformation for a high-end fashion label, resulting in 40% increase in brand recognition and 25% sales growth.",
-      image: "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-      date: "March 15, 2023",
-      readTime: "12 min read"
-    },
-    {
-      id: 2,
-      title: "E-commerce Conversion Rate Optimization",
-      category: "marketing",
-      summary: "Strategic digital marketing campaign that increased conversion rates by 85% and boosted revenue by $1.2M within six months.",
-      image: "https://images.unsplash.com/photo-1661956602139-ec64991b8b16?ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2365&q=80",
-      date: "April 22, 2023",
-      readTime: "10 min read"
-    },
-    {
-      id: 3,
-      title: "Premium SaaS Website Redesign",
-      category: "web",
-      summary: "Complete UX/UI overhaul for a B2B SaaS platform, resulting in 50% increase in user engagement and 30% reduction in bounce rate.",
-      image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2072&q=80",
-      date: "May 10, 2023",
-      readTime: "15 min read"
-    },
-    {
-      id: 4,
-      title: "Video Content Strategy for Tech Startup",
-      category: "content",
-      summary: "Comprehensive video content strategy that increased social media engagement by 120% and generated 5,000+ qualified leads.",
-      image: "https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-      date: "June 8, 2023",
-      readTime: "8 min read"
-    },
-    {
-      id: 5,
-      title: "Luxury Hotel Brand Identity",
-      category: "branding",
-      summary: "Complete brand identity system for a 5-star hotel chain, leading to 45% increase in brand value and international recognition.",
-      image: "https://images.unsplash.com/photo-1564501049412-61c2a3083791?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2232&q=80",
-      date: "July 12, 2023",
-      readTime: "14 min read"
-    },
-    {
-      id: 6,
-      title: "Integrated Marketing Campaign for Retail",
-      category: "marketing",
-      summary: "Omnichannel marketing strategy that increased foot traffic by 60% and online sales by 75% during a competitive holiday season.",
-      image: "https://images.unsplash.com/photo-1521791136064-7986c2920216?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2369&q=80",
-      date: "August 5, 2023",
-      readTime: "9 min read"
-    }
-  ];
+  // Fetch case studies from Supabase
+  useEffect(() => {
+    const fetchCaseStudies = async () => {
+      try {
+        setIsLoading(true);
+        const { data, error } = await supabase
+          .from('case_studies')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (error) {
+          throw error;
+        }
+        
+        // Process data to add category for filtering
+        const processedStudies = data.map(study => {
+          let category = 'content';
+          
+          if (study.industry === 'Finance' || study.industry === 'Retail') {
+            category = 'marketing';
+          } else if (study.industry === 'Technology') {
+            category = 'web';
+          } else if (study.industry === 'Healthcare' || study.industry === 'Education') {
+            category = 'branding';
+          }
+          
+          return {
+            ...study,
+            category
+          };
+        });
+        
+        setCaseStudies(processedStudies || []);
+      } catch (error) {
+        console.error('Error fetching case studies:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCaseStudies();
+  }, []);
 
   // Filter case studies based on active filter
   const filteredCaseStudies = activeFilter === "all" 
     ? caseStudies 
     : caseStudies.filter(study => study.category === activeFilter);
+
+  // Format date for display
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  };
+
+  // Calculate read time based on content length
+  const calculateReadTime = (study: CaseStudy) => {
+    const contentLength = 
+      (study.summary?.length || 0) + 
+      (study.challenge?.length || 0) + 
+      (study.solution?.length || 0) + 
+      (study.results?.length || 0);
+    
+    const wordsPerMinute = 200;
+    const minutes = Math.ceil(contentLength / 5 / wordsPerMinute);
+    return `${minutes} min read`;
+  };
 
   // Effect for animations
   useEffect(() => {
@@ -144,55 +164,74 @@ const CaseStudy = () => {
           </div>
         </div>
 
-        {/* Case studies grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredCaseStudies.slice(0, visibleItems).map((study, index) => (
-            <div 
-              key={study.id} 
-              className="rounded-xl overflow-hidden shadow-lg transition-all hover:shadow-xl hover:translate-y-[-5px] bg-card fade-up"
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
-              <div className="h-60 overflow-hidden">
-                <img 
-                  src={study.image} 
-                  alt={study.title} 
-                  className="w-full h-full object-cover transition-transform hover:scale-105"
-                />
-              </div>
-              <div className="p-6">
-                <div className="flex items-center gap-3 text-sm text-muted-foreground mb-2">
-                  <span className="flex items-center">
-                    <Calendar size={14} className="mr-1" />
-                    {study.date}
-                  </span>
-                  <span className="flex items-center">
-                    <Clock size={14} className="mr-1" />
-                    {study.readTime}
-                  </span>
-                </div>
-                <h3 className="text-xl font-bold mb-3">{study.title}</h3>
-                <p className="text-muted-foreground mb-4">{study.summary}</p>
-                <Link 
-                  to={`/case-study/${study.id}`} 
-                  className="inline-flex items-center text-primary hover:text-primary/80 transition-colors"
-                >
-                  Read Case Study <ArrowRight size={16} className="ml-1" />
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Load more button */}
-        {visibleItems < filteredCaseStudies.length && (
-          <div className="text-center mt-12">
-            <button 
-              onClick={loadMore}
-              className="px-8 py-3 bg-primary text-white rounded-full hover:bg-primary/90 transition-colors"
-            >
-              Load More
-            </button>
+        {isLoading ? (
+          <div className="flex justify-center py-16">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary"></div>
           </div>
+        ) : (
+          <>
+            {/* Case studies grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {filteredCaseStudies.slice(0, visibleItems).map((study, index) => (
+                <div 
+                  key={study.id} 
+                  className="rounded-xl overflow-hidden shadow-lg transition-all hover:shadow-xl hover:translate-y-[-5px] bg-card fade-up"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  <div className="h-60 overflow-hidden">
+                    <img 
+                      src={study.image} 
+                      alt={study.title} 
+                      className="w-full h-full object-cover transition-transform hover:scale-105"
+                    />
+                  </div>
+                  <div className="p-6">
+                    <div className="flex items-center gap-3 text-sm text-muted-foreground mb-2">
+                      <span className="flex items-center">
+                        <Calendar size={14} className="mr-1" />
+                        {formatDate(study.created_at)}
+                      </span>
+                      <span className="flex items-center">
+                        <Clock size={14} className="mr-1" />
+                        {calculateReadTime(study)}
+                      </span>
+                    </div>
+                    <h3 className="text-xl font-bold mb-3">{study.title}</h3>
+                    <p className="text-muted-foreground mb-4">{study.summary}</p>
+                    <Link 
+                      to={`/case-study/${study.id}`} 
+                      className="inline-flex items-center text-primary hover:text-primary/80 transition-colors"
+                    >
+                      Read Case Study <ArrowRight size={16} className="ml-1" />
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Show message if no case studies match filter */}
+            {filteredCaseStudies.length === 0 && !isLoading && (
+              <div className="text-center py-16">
+                <FileText className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-xl font-bold mb-2">No case studies found</h3>
+                <p className="text-muted-foreground">
+                  No case studies match your current filter. Try selecting a different category.
+                </p>
+              </div>
+            )}
+
+            {/* Load more button */}
+            {visibleItems < filteredCaseStudies.length && (
+              <div className="text-center mt-12">
+                <button 
+                  onClick={loadMore}
+                  className="px-8 py-3 bg-primary text-white rounded-full hover:bg-primary/90 transition-colors"
+                >
+                  Load More
+                </button>
+              </div>
+            )}
+          </>
         )}
         
         {/* Call to action */}
