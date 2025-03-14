@@ -10,6 +10,7 @@ import PortfolioPreview from "@/components/PortfolioPreview";
 import CaseStudyPreview from "@/components/CaseStudyPreview";
 import BlogPreview from "@/components/BlogPreview";
 import FAQ from "@/components/FAQ";
+import Footer from "@/components/Footer";
 import { Helmet } from "react-helmet";
 
 const Index = () => {
@@ -58,17 +59,7 @@ const Index = () => {
         <FAQ />
         <Contact />
       </main>
-      <footer className="bg-secondary text-white py-4 text-center">
-        <div className="container mx-auto px-4">
-          <p className="text-sm opacity-70">© {new Date().getFullYear()} Zoolyum Creative Agency. All rights reserved.</p>
-          <Link 
-            to="/admin" 
-            className="text-xs opacity-50 hover:opacity-100 transition-opacity mt-1 inline-block"
-          >
-            Site Admin
-          </Link>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };
