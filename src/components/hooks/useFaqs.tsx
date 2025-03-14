@@ -75,19 +75,16 @@ export const useFaqs = () => {
   // Update FAQ order
   const updateFaqOrder = async (reorderedFaqs: FAQ[]) => {
     try {
-      // Create an array of update operations
-      const updates = reorderedFaqs.map((faq, index) => ({
-        id: faq.id,
-        display_order: index + 1
-      }));
-      
-      // Perform batch update
-      const { error } = await supabase
-        .from('faqs')
-        .upsert(updates);
-      
-      if (error) {
-        throw error;
+      // Update each FAQ one by one instead of using batch upsert
+      for (const faq of reorderedFaqs) {
+        const { error } = await supabase
+          .from('faqs')
+          .update({ display_order: faq.display_order })
+          .eq('id', faq.id);
+          
+        if (error) {
+          throw error;
+        }
       }
       
       setFaqs(reorderedFaqs);
