@@ -12,6 +12,7 @@ import AdminCaseStudies from "@/components/admin/AdminCaseStudies";
 import AdminBlog from "@/components/admin/AdminBlog";
 import AdminFaq from "@/components/admin/AdminFaq";
 import AdminFooter from "@/components/admin/AdminFooter";
+import AdminContact from "@/components/admin/AdminContact";
 
 const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -116,6 +117,7 @@ const Admin = () => {
         <Tabs defaultValue="dashboard" className="w-full">
           <TabsList className="mb-8">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+            <TabsTrigger value="contact">Contact</TabsTrigger>
             <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
             <TabsTrigger value="case-studies">Case Studies</TabsTrigger>
             <TabsTrigger value="blog">Blog</TabsTrigger>
@@ -125,6 +127,10 @@ const Admin = () => {
           
           <TabsContent value="dashboard">
             <AdminDashboard />
+          </TabsContent>
+          
+          <TabsContent value="contact">
+            <AdminContact />
           </TabsContent>
           
           <TabsContent value="portfolio">

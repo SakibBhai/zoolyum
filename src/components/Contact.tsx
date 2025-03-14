@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Mail, MessageSquare, Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Contact = () => {
   const { toast } = useToast();
@@ -17,8 +18,16 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Save form data to Supabase
+      const { error } = await supabase
+        .from('contact_submissions')
+        .insert({
+          name: formData.name,
+          email: formData.email,
+          message: formData.message
+        });
+      
+      if (error) throw error;
       
       toast({
         title: "Message sent successfully!",
@@ -27,6 +36,7 @@ const Contact = () => {
       
       setFormData({ name: "", email: "", message: "" });
     } catch (error) {
+      console.error("Error submitting form:", error);
       toast({
         title: "Error sending message",
         description: "Please try again later.",
@@ -69,8 +79,8 @@ const Contact = () => {
               {
                 icon: <Mail className="h-6 w-6" />,
                 title: "Email Us",
-                description: "hello@zoolyum.com",
-                link: "mailto:hello@zoolyum.com",
+                description: "info@zoolyum.com",
+                link: "mailto:info@zoolyum.com",
               },
               {
                 icon: <MessageSquare className="h-6 w-6" />,
