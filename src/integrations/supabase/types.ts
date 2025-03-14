@@ -81,6 +81,39 @@ export type Database = {
         }
         Relationships: []
       }
+      faqs: {
+        Row: {
+          answer: string
+          category: string | null
+          created_at: string
+          display_order: number | null
+          id: string
+          is_highlighted: boolean | null
+          question: string
+          updated_at: string
+        }
+        Insert: {
+          answer: string
+          category?: string | null
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          is_highlighted?: boolean | null
+          question: string
+          updated_at?: string
+        }
+        Update: {
+          answer?: string
+          category?: string | null
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          is_highlighted?: boolean | null
+          question?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       portfolio_projects: {
         Row: {
           category: string
