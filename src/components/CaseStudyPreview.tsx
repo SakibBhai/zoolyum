@@ -48,6 +48,29 @@ const CaseStudyPreview = () => {
     return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
   };
 
+  // Add animation observer
+  useEffect(() => {
+    const fadeElements = document.querySelectorAll('.fade-up');
+    
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+    
+    fadeElements.forEach(element => {
+      observer.observe(element);
+    });
+    
+    return () => {
+      fadeElements.forEach(element => {
+        observer.unobserve(element);
+      });
+    };
+  }, [featuredCaseStudies]);
+
   return (
     <section id="case-studies" className="py-20 px-4">
       <div className="container mx-auto">
