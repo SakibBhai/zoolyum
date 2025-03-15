@@ -73,7 +73,7 @@ const Login = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={isLoading}
-                  placeholder="admin@example.com or admin"
+                  placeholder="sakib@zoolyum.com or admin"
                 />
               </div>
               <div className="space-y-2">
@@ -102,7 +102,7 @@ const Login = () => {
                 ) : 'Sign In'}
               </Button>
               <div className="text-center text-sm text-muted-foreground pt-2">
-                <p>Demo credentials: admin@example.com or admin / admin123</p>
+                <p>Demo credentials: sakib@zoolyum.com / 1225@Sakib or admin / admin123</p>
               </div>
             </form>
           </CardContent>

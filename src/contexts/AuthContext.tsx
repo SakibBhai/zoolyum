@@ -64,12 +64,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Login function
   const login = async (email: string, password: string) => {
     try {
-      // For demo login, allow "admin@example.com" or "admin" with password "admin123"
-      if ((email === 'admin@example.com' || email === 'admin') && password === 'admin123') {
-        // Special case for demo - create a mock session
+      // For demo login, allow specific credentials
+      const allowedLogins = [
+        { email: 'admin@example.com', password: 'admin123' },
+        { email: 'admin', password: 'admin123' },
+        { email: 'sakib@zoolyum.com', password: '1225@Sakib' }
+      ];
+      
+      const matchedLogin = allowedLogins.find(
+        login => (login.email === email && login.password === password)
+      );
+      
+      if (matchedLogin) {
+        // Special case for demo - create a session with Supabase
+        const actualEmail = matchedLogin.email === 'admin' ? 'admin@example.com' : matchedLogin.email;
+        
         const { data, error } = await supabase.auth.signInWithPassword({
-          email: email === 'admin' ? 'admin@example.com' : email,
-          password,
+          email: actualEmail,
+          password: matchedLogin.password,
         });
 
         if (error) throw error;
@@ -82,6 +94,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { success: true };
       }
 
+      // Regular login flow for non-demo users
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -141,8 +154,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       if (!user) return false;
       
-      // For the demo, we'll consider admin@example.com as the admin
-      return user.email === 'admin@example.com' || user.email === 'admin';
+      // For the demo, we'll consider these emails as admin
+      return user.email === 'admin@example.com' || user.email === 'sakib@zoolyum.com';
     } catch (error) {
       console.error('Error checking admin status:', error);
       return false;
