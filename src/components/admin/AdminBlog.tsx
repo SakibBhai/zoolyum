@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
-// Import the new components
+// Import the components
 import BlogForm from "./blog/BlogForm";
 import BlogList from "./blog/BlogList";
 import { useBlogPosts, BlogPost } from "./blog/useBlogPosts";
@@ -22,7 +22,7 @@ const AdminBlog = () => {
     image: "",
   });
   const { toast } = useToast();
-  const { posts, isLoading, deletePost, savePost } = useBlogPosts();
+  const { posts, isLoading, deletePost, savePost, fetchPosts } = useBlogPosts();
 
   const handleAddNew = () => {
     setIsEditing(true);
@@ -46,6 +46,7 @@ const AdminBlog = () => {
   const handleSubmit = async (post: BlogPost) => {
     const success = await savePost(post);
     if (success) {
+      fetchPosts(); // Refresh the posts after saving
       setIsEditing(false);
       setCurrentPost({ id: "", title: "", category: "", excerpt: "", content: "", author: "", date: "", image: "" });
     }

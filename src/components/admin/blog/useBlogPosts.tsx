@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 
 // Blog post interface
 export interface BlogPost {
@@ -19,6 +20,24 @@ export const useBlogPosts = () => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+
+  // Set up realtime subscription
+  useRealtimeSubscription({
+    table: 'blog_posts',
+    events: ['INSERT', 'UPDATE', 'DELETE'],
+    onInsert: (payload) => {
+      console.log('New blog post added:', payload);
+      fetchPosts(); // Refresh the posts
+    },
+    onUpdate: (payload) => {
+      console.log('Blog post updated:', payload);
+      fetchPosts(); // Refresh the posts
+    },
+    onDelete: (payload) => {
+      console.log('Blog post deleted:', payload);
+      fetchPosts(); // Refresh the posts
+    }
+  });
 
   // Fetch blog posts from Supabase
   const fetchPosts = async () => {
@@ -95,7 +114,6 @@ export const useBlogPosts = () => {
           throw error;
         }
         
-        setPosts(posts.map(p => p.id === post.id ? post : p));
         toast({
           title: "Post updated",
           description: "The blog post has been updated successfully",
@@ -120,7 +138,6 @@ export const useBlogPosts = () => {
           throw error;
         }
         
-        setPosts([...posts, data[0]]);
         toast({
           title: "Post added",
           description: "The new blog post has been added successfully",
