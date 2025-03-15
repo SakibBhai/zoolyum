@@ -13,7 +13,8 @@ const AdminContact = () => {
     isLoading, 
     fetchSubmissions, 
     markAsRead, 
-    deleteSubmission 
+    deleteSubmission,
+    handleNewSubmission
   } = useContactSubmissions();
 
   const unreadCount = submissions.filter(sub => !sub.is_read).length;
@@ -75,6 +76,7 @@ const AdminContact = () => {
             onMarkAsRead={markAsRead}
             onDelete={deleteSubmission}
             isLoading={isLoading}
+            onNewSubmission={handleNewSubmission}
           />
         </TabsContent>
         <TabsContent value="unread" className="space-y-4">
@@ -83,6 +85,7 @@ const AdminContact = () => {
             onMarkAsRead={markAsRead}
             onDelete={deleteSubmission}
             isLoading={isLoading}
+            onNewSubmission={handleNewSubmission}
           />
         </TabsContent>
       </Tabs>

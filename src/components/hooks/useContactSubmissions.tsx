@@ -98,6 +98,15 @@ export const useContactSubmissions = () => {
     }
   };
 
+  // Handle new submission from realtime updates
+  const handleNewSubmission = (newSubmission: ContactSubmission) => {
+    setSubmissions(prev => [newSubmission, ...prev]);
+    toast({
+      title: "New contact submission received!",
+      description: `From: ${newSubmission.name}`,
+    });
+  };
+
   useEffect(() => {
     fetchSubmissions();
   }, []);
@@ -107,6 +116,7 @@ export const useContactSubmissions = () => {
     isLoading,
     fetchSubmissions,
     markAsRead,
-    deleteSubmission
+    deleteSubmission,
+    handleNewSubmission
   };
 };
