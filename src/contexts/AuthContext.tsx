@@ -76,16 +76,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       );
       
       if (matchedLogin) {
-        // Special case for demo - create a session with Supabase
-        const actualEmail = matchedLogin.email === 'admin' ? 'admin@example.com' : matchedLogin.email;
-        
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: actualEmail,
-          password: matchedLogin.password,
+        // Demo login with hardcoded credentials - manually set auth state
+        setUser({ 
+          id: 'demo-user-id',
+          email: matchedLogin.email === 'admin' ? 'admin@example.com' : matchedLogin.email
         });
-
-        if (error) throw error;
-
+        setIsAuthenticated(true);
+        
         toast({
           title: 'Login successful',
           description: 'Welcome to the admin panel!',
@@ -94,7 +91,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { success: true };
       }
 
-      // Regular login flow for non-demo users
+      // Regular login flow for non-demo users (only execute this if not using demo credentials)
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -134,6 +131,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Logout function
   const logout = async () => {
     try {
+      // For demo login, just reset state
+      if (user && (user.email === 'admin@example.com' || user.email === 'sakib@zoolyum.com')) {
+        setUser(null);
+        setIsAuthenticated(false);
+        toast({
+          title: 'Logged out',
+          description: 'You have been successfully logged out',
+        });
+        return;
+      }
+      
+      // Regular logout for non-demo users
       await supabase.auth.signOut();
       toast({
         title: 'Logged out',
