@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Helmet } from 'react-helmet';
+import { Label } from '@/components/ui/label';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -62,22 +63,23 @@ const Login = () => {
                 </div>
               )}
               <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium">
+                <Label htmlFor="email" className="text-sm font-medium">
                   Email
-                </label>
+                </Label>
                 <Input
                   id="email"
-                  type="email"
+                  type="text" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={isLoading}
+                  placeholder="admin@example.com or admin"
                 />
               </div>
               <div className="space-y-2">
-                <label htmlFor="password" className="text-sm font-medium">
+                <Label htmlFor="password" className="text-sm font-medium">
                   Password
-                </label>
+                </Label>
                 <Input
                   id="password"
                   type="password"
@@ -85,6 +87,7 @@ const Login = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   disabled={isLoading}
+                  placeholder="********"
                 />
               </div>
               <Button type="submit" className="w-full" disabled={isLoading}>
@@ -99,7 +102,7 @@ const Login = () => {
                 ) : 'Sign In'}
               </Button>
               <div className="text-center text-sm text-muted-foreground pt-2">
-                <p>Demo credentials: admin@example.com / admin123</p>
+                <p>Demo credentials: admin@example.com or admin / admin123</p>
               </div>
             </form>
           </CardContent>

@@ -64,6 +64,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Login function
   const login = async (email: string, password: string) => {
     try {
+      // For demo login, allow "admin@example.com" or "admin" with password "admin123"
+      if ((email === 'admin@example.com' || email === 'admin') && password === 'admin123') {
+        // Special case for demo - create a mock session
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: email === 'admin' ? 'admin@example.com' : email,
+          password,
+        });
+
+        if (error) throw error;
+
+        toast({
+          title: 'Login successful',
+          description: 'Welcome to the admin panel!',
+        });
+        
+        return { success: true };
+      }
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -124,7 +142,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!user) return false;
       
       // For the demo, we'll consider admin@example.com as the admin
-      // In a real app, you'd check against the admin_users table
       return user.email === 'admin@example.com' || user.email === 'admin';
     } catch (error) {
       console.error('Error checking admin status:', error);
