@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import FileUpload from "../common/FileUpload";
 
 // Blog post interface
 interface BlogPost {
@@ -35,6 +36,10 @@ const BlogForm = ({ initialPost, onSubmit, onCancel }: BlogFormProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(post);
+  };
+
+  const handleImageUpload = (url: string) => {
+    setPost({...post, image: url});
   };
 
   return (
@@ -116,12 +121,10 @@ const BlogForm = ({ initialPost, onSubmit, onCancel }: BlogFormProps) => {
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="image">Feature Image URL</Label>
-            <Input 
-              id="image" 
-              value={post.image} 
-              onChange={(e) => setPost({...post, image: e.target.value})}
-              required
+            <FileUpload 
+              onUploadComplete={handleImageUpload}
+              currentImageUrl={post.image}
+              label="Feature Image"
             />
           </div>
           

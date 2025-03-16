@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import FileUpload from "../common/FileUpload";
 
 interface Project {
   id: string;
@@ -31,6 +32,10 @@ const ProjectForm = ({ initialProject, onSubmit, onCancel }: ProjectFormProps) =
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(project);
+  };
+
+  const handleImageUpload = (url: string) => {
+    setProject({...project, image: url});
   };
 
   return (
@@ -77,12 +82,10 @@ const ProjectForm = ({ initialProject, onSubmit, onCancel }: ProjectFormProps) =
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="image">Image URL</Label>
-            <Input 
-              id="image" 
-              value={project.image} 
-              onChange={(e) => setProject({...project, image: e.target.value})}
-              required
+            <FileUpload 
+              onUploadComplete={handleImageUpload}
+              currentImageUrl={project.image}
+              label="Project Image"
             />
           </div>
           
