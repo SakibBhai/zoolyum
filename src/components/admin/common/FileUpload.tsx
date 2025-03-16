@@ -43,12 +43,17 @@ const FileUpload = ({ onUploadComplete, currentImageUrl, label = "Image" }: File
       // Create a unique file name
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
-      const filePath = `${fileName}`;
+      
+      // Upload to public folder to simplify access
+      const filePath = `public/${fileName}`;
 
       // Upload the file to Supabase Storage
       const { data, error } = await supabase.storage
         .from('uploads')
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          upsert: true,
+          cacheControl: '3600',
+        });
 
       if (error) throw error;
 
@@ -64,10 +69,10 @@ const FileUpload = ({ onUploadComplete, currentImageUrl, label = "Image" }: File
       });
     } catch (error) {
       console.error('Error uploading file:', error);
-      setUploadError('Error uploading file. Please try again.');
+      setUploadError(`Error uploading file: ${error.message || 'Please try again.'}`);
       toast({
         title: "Upload failed",
-        description: error.message,
+        description: error.message || "An error occurred during upload",
         variant: "destructive"
       });
     } finally {
