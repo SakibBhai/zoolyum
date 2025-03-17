@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import Portfolio from "./pages/Portfolio";
 import CaseStudy from "./pages/CaseStudy";
 import Blog from "./pages/Blog";
+import BlogDetail from "./pages/BlogDetail";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import CaseStudyDetail from "./pages/CaseStudyDetail";
@@ -37,6 +38,7 @@ const App = () => (
               <Route path="/case-study" element={<CaseStudy />} />
               <Route path="/case-study/:id" element={<CaseStudyDetail />} />
               <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:id" element={<BlogDetail />} />
               <Route path="/login" element={<Login />} />
               <Route path="/admin" element={
                 <ProtectedRoute>
