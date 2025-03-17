@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { supabase } from "@/integrations/supabase/client";
-import { Calendar, User, ArrowLeft, Tag, Clock } from "lucide-react";
+import { Calendar, User, ArrowLeft, Tag, Clock, LinkIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
@@ -16,6 +16,8 @@ interface BlogPost {
   author: string;
   date: string;
   image: string;
+  additionalImages?: string[];
+  videoUrl?: string;
 }
 
 const BlogDetail = () => {
@@ -41,7 +43,14 @@ const BlogDetail = () => {
           throw postError;
         }
 
-        setPost(postData);
+        // Process additional images if they exist in the content
+        const processedPost = {
+          ...postData,
+          additionalImages: extractImageUrls(postData.content),
+          videoUrl: extractVideoUrl(postData.content),
+        };
+
+        setPost(processedPost);
 
         // Fetch related posts in same category
         if (postData?.category) {
@@ -91,6 +100,91 @@ const BlogDetail = () => {
     const words = content?.split(/\s+/)?.length || 0;
     const minutes = Math.max(1, Math.ceil(words / wordsPerMinute));
     return `${minutes} min read`;
+  };
+
+  // Extract image URLs from content with special format [image:url]
+  const extractImageUrls = (content: string): string[] => {
+    if (!content) return [];
+    const regex = /\[image:(https?:\/\/[^\]]+)\]/g;
+    const urls: string[] = [];
+    let match;
+    
+    while ((match = regex.exec(content)) !== null) {
+      urls.push(match[1]);
+    }
+    
+    return urls;
+  };
+
+  // Extract video URL from content with special format [video:url]
+  const extractVideoUrl = (content: string): string | undefined => {
+    if (!content) return undefined;
+    const match = content.match(/\[video:(https?:\/\/[^\]]+)\]/);
+    return match ? match[1] : undefined;
+  };
+
+  // Process content to render links and remove special formatting markers
+  const processContent = (content: string): string => {
+    if (!content) return "";
+    
+    // Remove image and video markers from the displayed content
+    let processedContent = content
+      .replace(/\[image:(https?:\/\/[^\]]+)\]/g, "")
+      .replace(/\[video:(https?:\/\/[^\]]+)\]/g, "");
+    
+    return processedContent;
+  };
+
+  // Convert URLs to clickable links
+  const renderContentWithLinks = (text: string) => {
+    if (!text) return [];
+    
+    // Regular expression to find URLs
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    
+    // Split the text by URLs
+    const parts = text.split(urlRegex);
+    
+    // Map the parts to React elements
+    return parts.map((part, index) => {
+      if (part.match(urlRegex)) {
+        return (
+          <a 
+            key={index}
+            href={part}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:underline inline-flex items-center"
+          >
+            {part}
+            <LinkIcon size={14} className="ml-1" />
+          </a>
+        );
+      }
+      return <span key={index}>{part}</span>;
+    });
+  };
+
+  // Render a YouTube embed from a YouTube URL
+  const renderYouTubeEmbed = (url: string) => {
+    // Extract the video ID from various YouTube URL formats
+    const videoId = url.match(
+      /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/
+    )?.[1];
+    
+    if (!videoId) return null;
+    
+    return (
+      <div className="aspect-video w-full my-8">
+        <iframe
+          className="w-full h-full rounded-lg"
+          src={`https://www.youtube.com/embed/${videoId}`}
+          title="YouTube video player"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        ></iframe>
+      </div>
+    );
   };
 
   return (
@@ -151,9 +245,34 @@ const BlogDetail = () => {
               {/* Blog content */}
               <div className="prose prose-lg max-w-none">
                 <p className="text-lg font-medium">{post.excerpt}</p>
-                {post.content.split("\n\n").map((paragraph, index) => (
-                  <p key={index}>{paragraph}</p>
+                
+                {/* Render processed content with clickable links */}
+                {processContent(post.content).split("\n\n").map((paragraph, index) => (
+                  <p key={index} className="my-4 leading-relaxed text-gray-800">
+                    {renderContentWithLinks(paragraph)}
+                  </p>
                 ))}
+
+                {/* Additional Images Gallery */}
+                {post.additionalImages && post.additionalImages.length > 0 && (
+                  <div className="my-8">
+                    <h3 className="text-xl font-bold mb-4">Gallery</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {post.additionalImages.map((imgUrl, idx) => (
+                        <div key={idx} className="rounded-lg overflow-hidden">
+                          <img 
+                            src={imgUrl} 
+                            alt={`Additional image ${idx + 1}`} 
+                            className="w-full h-auto object-cover hover:scale-105 transition-transform duration-300"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Video Embed */}
+                {post.videoUrl && renderYouTubeEmbed(post.videoUrl)}
               </div>
 
               {/* Tags */}
