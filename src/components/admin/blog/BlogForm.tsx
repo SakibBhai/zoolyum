@@ -203,6 +203,7 @@ const BlogForm = ({ initialPost, onSubmit, onCancel }: BlogFormProps) => {
                       <p className="mb-1"><strong>Special Content Tags:</strong></p>
                       <p className="mb-1">• Add images: <code>[image:https://example.com/image.jpg]</code></p>
                       <p className="mb-1">• Add videos: <code>[video:https://youtube.com/watch?v=xxxxx]</code></p>
+                      <p className="mb-1">• Add hyperlinks: <code>[link:https://example.com:Link Text]</code></p>
                       <p>• URLs will automatically become clickable links</p>
                     </div>
                   </TooltipContent>
@@ -218,6 +219,7 @@ const BlogForm = ({ initialPost, onSubmit, onCancel }: BlogFormProps) => {
               placeholder="Write your content here. Use special tags for enhanced features:
 - Add images with [image:https://example.com/image.jpg]
 - Add videos with [video:https://youtube.com/watch?v=xxxxx]
+- Add custom hyperlinks with [link:https://example.com:Link Text]
 - URLs will automatically become clickable links"
               className="font-mono"
             />

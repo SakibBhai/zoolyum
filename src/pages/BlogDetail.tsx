@@ -127,41 +127,90 @@ const BlogDetail = () => {
   const processContent = (content: string): string => {
     if (!content) return "";
     
-    // Remove image and video markers from the displayed content
+    // Remove image, video, and custom link markers from the displayed content
     let processedContent = content
       .replace(/\[image:(https?:\/\/[^\]]+)\]/g, "")
-      .replace(/\[video:(https?:\/\/[^\]]+)\]/g, "");
+      .replace(/\[video:(https?:\/\/[^\]]+)\]/g, "")
+      .replace(/\[link:(https?:\/\/[^\:]+):([^\]]+)\]/g, "");
     
     return processedContent;
   };
 
-  // Convert URLs to clickable links
+  // Convert URLs to clickable links and handle custom hyperlinks
   const renderContentWithLinks = (text: string) => {
     if (!text) return [];
     
-    // Regular expression to find URLs
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    // Split first by custom link format [link:url:text]
+    const parts = [];
+    let lastIndex = 0;
+    const linkRegex = /\[link:(https?:\/\/[^\:]+):([^\]]+)\]/g;
+    let match;
     
-    // Split the text by URLs
-    const parts = text.split(urlRegex);
+    while ((match = linkRegex.exec(text)) !== null) {
+      // Add the text before this link
+      if (match.index > lastIndex) {
+        parts.push({
+          type: 'text',
+          content: text.substring(lastIndex, match.index)
+        });
+      }
+      
+      // Add the link with its text
+      parts.push({
+        type: 'custom-link',
+        url: match[1],
+        text: match[2]
+      });
+      
+      lastIndex = match.index + match[0].length;
+    }
     
-    // Map the parts to React elements
+    // Add any remaining text
+    if (lastIndex < text.length) {
+      parts.push({
+        type: 'text',
+        content: text.substring(lastIndex)
+      });
+    }
+    
+    // Now process each part for regular URLs
     return parts.map((part, index) => {
-      if (part.match(urlRegex)) {
+      if (part.type === 'custom-link') {
         return (
           <a 
             key={index}
-            href={part}
+            href={part.url}
             target="_blank"
             rel="noopener noreferrer"
             className="text-primary hover:underline inline-flex items-center"
           >
-            {part}
+            {part.text}
             <LinkIcon size={14} className="ml-1" />
           </a>
         );
+      } else {
+        // Process regular URLs in this text part
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        const textParts = part.content.split(urlRegex);
+        
+        return textParts.map((textPart, textIndex) => {
+          if (textPart.match(urlRegex)) {
+            return (
+              <a 
+                key={`${index}-${textIndex}`}
+                href={textPart}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline inline-flex items-center"
+              >
+                {textPart}
+                <LinkIcon size={14} className="ml-1" />
+              </a>
+            );
+          }
+          return <span key={`${index}-${textIndex}`}>{textPart}</span>;
+        });
       }
-      return <span key={index}>{part}</span>;
     });
   };
 
