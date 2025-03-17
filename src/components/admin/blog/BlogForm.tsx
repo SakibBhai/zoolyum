@@ -7,8 +7,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import FileUpload from "../common/FileUpload";
-import { Info } from "lucide-react";
+import { Info, PlusCircle } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useEffect as useEffectOnce, useState as useStateOnce } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 // Blog post interface
 interface BlogPost {
@@ -30,6 +33,40 @@ interface BlogFormProps {
 
 const BlogForm = ({ initialPost, onSubmit, onCancel }: BlogFormProps) => {
   const [post, setPost] = useState<BlogPost>(initialPost);
+  const [categories, setCategories] = useState<string[]>([
+    "Design", "Development", "Marketing", "Business", "Technology"
+  ]);
+  const [newCategory, setNewCategory] = useState("");
+  const [showCustomCategory, setShowCustomCategory] = useState(false);
+
+  // Fetch existing categories from blog_posts table
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('blog_posts')
+          .select('category')
+          .order('category');
+        
+        if (error) {
+          console.error('Error fetching categories:', error);
+          return;
+        }
+        
+        // Extract unique categories
+        const uniqueCategories = [...new Set(data.map(item => item.category))];
+        
+        // Merge with default categories and deduplicate
+        const allCategories = [...new Set([...categories, ...uniqueCategories])];
+        
+        setCategories(allCategories.sort());
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    };
+    
+    fetchCategories();
+  }, []);
 
   useEffect(() => {
     setPost(initialPost);
@@ -42,6 +79,15 @@ const BlogForm = ({ initialPost, onSubmit, onCancel }: BlogFormProps) => {
 
   const handleImageUpload = (url: string) => {
     setPost({...post, image: url});
+  };
+
+  const addCustomCategory = () => {
+    if (newCategory && !categories.includes(newCategory)) {
+      setCategories([...categories, newCategory]);
+      setPost({...post, category: newCategory});
+      setNewCategory("");
+      setShowCustomCategory(false);
+    }
   };
 
   return (
@@ -61,21 +107,54 @@ const BlogForm = ({ initialPost, onSubmit, onCancel }: BlogFormProps) => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="category">Category</Label>
-              <Select 
-                value={post.category}
-                onValueChange={(value) => setPost({...post, category: value})}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Design">Design</SelectItem>
-                  <SelectItem value="Development">Development</SelectItem>
-                  <SelectItem value="Marketing">Marketing</SelectItem>
-                  <SelectItem value="Business">Business</SelectItem>
-                  <SelectItem value="Technology">Technology</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex gap-2">
+                <Select 
+                  value={post.category}
+                  onValueChange={(value) => {
+                    if (value === "custom") {
+                      setShowCustomCategory(true);
+                    } else {
+                      setPost({...post, category: value});
+                    }
+                  }}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((category) => (
+                      <SelectItem key={category} value={category}>{category}</SelectItem>
+                    ))}
+                    <SelectItem value="custom">
+                      <div className="flex items-center">
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Add Custom
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                
+                <Popover open={showCustomCategory} onOpenChange={setShowCustomCategory}>
+                  <PopoverTrigger className="hidden">Open</PopoverTrigger>
+                  <PopoverContent className="p-4 w-72">
+                    <div className="space-y-2">
+                      <Label htmlFor="new-category">New Category</Label>
+                      <div className="flex gap-2">
+                        <Input 
+                          id="new-category" 
+                          value={newCategory}
+                          onChange={(e) => setNewCategory(e.target.value)}
+                          placeholder="Enter category name"
+                          autoFocus
+                        />
+                        <Button type="button" onClick={addCustomCategory}>
+                          Add
+                        </Button>
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
             </div>
             
             <div className="space-y-2">

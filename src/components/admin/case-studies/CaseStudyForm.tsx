@@ -7,6 +7,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import FileUpload from "../common/FileUpload";
+import { PlusCircle } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { supabase } from "@/integrations/supabase/client";
 
 // Case study interface
 interface CaseStudy {
@@ -28,6 +31,40 @@ interface CaseStudyFormProps {
 
 const CaseStudyForm = ({ initialCaseStudy, onSubmit, onCancel }: CaseStudyFormProps) => {
   const [caseStudy, setCaseStudy] = useState<CaseStudy>(initialCaseStudy);
+  const [industries, setIndustries] = useState<string[]>([
+    "Finance", "Healthcare", "Technology", "Retail", "Education"
+  ]);
+  const [newIndustry, setNewIndustry] = useState("");
+  const [showCustomIndustry, setShowCustomIndustry] = useState(false);
+
+  // Fetch existing industries from case_studies table
+  useEffect(() => {
+    const fetchIndustries = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('case_studies')
+          .select('industry')
+          .order('industry');
+        
+        if (error) {
+          console.error('Error fetching industries:', error);
+          return;
+        }
+        
+        // Extract unique industries
+        const uniqueIndustries = [...new Set(data.map(item => item.industry))];
+        
+        // Merge with default industries and deduplicate
+        const allIndustries = [...new Set([...industries, ...uniqueIndustries])];
+        
+        setIndustries(allIndustries.sort());
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    };
+    
+    fetchIndustries();
+  }, []);
 
   useEffect(() => {
     setCaseStudy(initialCaseStudy);
@@ -40,6 +77,15 @@ const CaseStudyForm = ({ initialCaseStudy, onSubmit, onCancel }: CaseStudyFormPr
 
   const handleImageUpload = (url: string) => {
     setCaseStudy({...caseStudy, image: url});
+  };
+
+  const addCustomIndustry = () => {
+    if (newIndustry && !industries.includes(newIndustry)) {
+      setIndustries([...industries, newIndustry]);
+      setCaseStudy({...caseStudy, industry: newIndustry});
+      setNewIndustry("");
+      setShowCustomIndustry(false);
+    }
   };
 
   return (
@@ -58,21 +104,54 @@ const CaseStudyForm = ({ initialCaseStudy, onSubmit, onCancel }: CaseStudyFormPr
           
           <div className="space-y-2">
             <Label htmlFor="industry">Industry</Label>
-            <Select 
-              value={caseStudy.industry}
-              onValueChange={(value) => setCaseStudy({...caseStudy, industry: value})}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select an industry" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Finance">Finance</SelectItem>
-                <SelectItem value="Healthcare">Healthcare</SelectItem>
-                <SelectItem value="Technology">Technology</SelectItem>
-                <SelectItem value="Retail">Retail</SelectItem>
-                <SelectItem value="Education">Education</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex gap-2">
+              <Select 
+                value={caseStudy.industry}
+                onValueChange={(value) => {
+                  if (value === "custom") {
+                    setShowCustomIndustry(true);
+                  } else {
+                    setCaseStudy({...caseStudy, industry: value});
+                  }
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select an industry" />
+                </SelectTrigger>
+                <SelectContent>
+                  {industries.map((industry) => (
+                    <SelectItem key={industry} value={industry}>{industry}</SelectItem>
+                  ))}
+                  <SelectItem value="custom">
+                    <div className="flex items-center">
+                      <PlusCircle className="mr-2 h-4 w-4" />
+                      Add Custom
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              
+              <Popover open={showCustomIndustry} onOpenChange={setShowCustomIndustry}>
+                <PopoverTrigger className="hidden">Open</PopoverTrigger>
+                <PopoverContent className="p-4 w-72">
+                  <div className="space-y-2">
+                    <Label htmlFor="new-industry">New Industry</Label>
+                    <div className="flex gap-2">
+                      <Input 
+                        id="new-industry" 
+                        value={newIndustry}
+                        onChange={(e) => setNewIndustry(e.target.value)}
+                        placeholder="Enter industry name"
+                        autoFocus
+                      />
+                      <Button type="button" onClick={addCustomIndustry}>
+                        Add
+                      </Button>
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
           
           <div className="space-y-2">
