@@ -1,9 +1,11 @@
 
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Calendar, User, Clock, ArrowRight, BookOpen, Tag, Search } from "lucide-react";
+import { Calendar, User, Clock, ArrowRight, BookOpen, Tag, Search, ChevronDown, ChevronUp } from "lucide-react";
 import Navbar from "../components/Navbar";
 import { supabase } from "@/integrations/supabase/client";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Helmet } from "react-helmet";
 
 interface BlogPost {
   id: string;
@@ -23,6 +25,7 @@ const Blog = () => {
   const [visiblePosts, setVisiblePosts] = useState<number>(6);
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showSeoTips, setShowSeoTips] = useState(false);
 
   // Fetch blog posts from Supabase
   useEffect(() => {
@@ -119,6 +122,11 @@ const Blog = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>Blog | Zoolyum</title>
+        <meta name="description" content="Insights, strategies, and industry knowledge to help your business grow." />
+      </Helmet>
+      
       <Navbar />
       
       <div className="container mx-auto px-4 pt-32 pb-20">
@@ -139,6 +147,74 @@ const Blog = () => {
             />
             <Search className="absolute left-3 top-3.5 text-muted-foreground" size={18} />
           </div>
+        </div>
+
+        {/* SEO Tips Section */}
+        <div className="max-w-4xl mx-auto mb-12 border border-border rounded-xl overflow-hidden shadow-sm bg-card">
+          <Collapsible open={showSeoTips} onOpenChange={setShowSeoTips}>
+            <CollapsibleTrigger className="flex justify-between items-center w-full p-6 text-left">
+              <div>
+                <h2 className="text-xl font-semibold">SEO Best Practices for Blog Posts</h2>
+                <p className="text-muted-foreground">Optimize your blog posts for better search engine visibility</p>
+              </div>
+              {showSeoTips ? (
+                <ChevronUp className="h-5 w-5 text-muted-foreground" />
+              ) : (
+                <ChevronDown className="h-5 w-5 text-muted-foreground" />
+              )}
+            </CollapsibleTrigger>
+            <CollapsibleContent className="p-6 pt-0 border-t border-border">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="text-lg font-medium mb-3">SEO-Friendly URL Structure:</h3>
+                  <p className="mb-2">Keep URLs short and descriptive:</p>
+                  <div className="flex flex-col gap-1 mb-4">
+                    <div className="flex items-center gap-2">
+                      <span className="text-green-500 font-bold">✅</span>
+                      <code className="bg-secondary/30 px-2 py-1 rounded text-sm">example.com/real-estate-investment-dubai</code>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-red-500 font-bold">❌</span>
+                      <code className="bg-secondary/30 px-2 py-1 rounded text-sm">example.com/blog?id=1234</code>
+                    </div>
+                  </div>
+
+                  <h3 className="text-lg font-medium mb-3">Optimized Headings & Content:</h3>
+                  <ul className="list-disc list-inside space-y-1 mb-4">
+                    <li>Use H1 for the main title and H2-H3 for subheadings.</li>
+                    <li>Write engaging and value-driven content.</li>
+                    <li>Use bullet points & short paragraphs for readability.</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-medium mb-3">Meta Title & Description:</h3>
+                  <ul className="list-disc list-inside space-y-1 mb-3">
+                    <li>Meta Title: 50-60 characters, keyword-rich, catchy.</li>
+                    <li>Meta Description: 150-160 characters, summarizing the content.</li>
+                  </ul>
+                  <div className="mb-4">
+                    <p className="mb-1">Example:</p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-green-500 font-bold">✅</span>
+                      <p className="text-sm font-medium">"Top 10 Real Estate Investment Tips in Dubai | Expert Guide"</p>
+                    </div>
+                  </div>
+
+                  <h3 className="text-lg font-medium mb-3">Internal & External Linking:</h3>
+                  <ul className="list-disc list-inside space-y-1 mb-4">
+                    <li>Link to other relevant blog posts & service pages within your site.</li>
+                    <li>Include external links to high-authority sources for credibility.</li>
+                  </ul>
+
+                  <h3 className="text-lg font-medium mb-3">Image Optimization:</h3>
+                  <ul className="list-disc list-inside space-y-1">
+                    <li>Use descriptive filenames & ALT text for images.</li>
+                  </ul>
+                </div>
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
         </div>
 
         {isLoading ? (
