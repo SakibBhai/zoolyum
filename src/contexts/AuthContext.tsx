@@ -61,15 +61,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
-  // Login function
+  // Login function with rate limiting and additional security
   const login = async (email: string, password: string) => {
     try {
-      // For demo login, allow specific credentials
+      // For demo login, allow specific credentials with improved security checks
       const allowedLogins = [
         { email: 'admin@example.com', password: 'admin123' },
         { email: 'admin', password: 'admin123' },
         { email: 'sakib@zoolyum.com', password: '1225@Sakib' }
       ];
+      
+      // Check for previous failed attempts and potential brute force attacks
+      const previousFailedAttempts = parseInt(localStorage.getItem('loginAttempts') || '0', 10);
+      if (previousFailedAttempts >= 5) {
+        const lockoutTime = localStorage.getItem('loginLockoutUntil');
+        if (lockoutTime && new Date(lockoutTime) > new Date()) {
+          return { 
+            success: false, 
+            error: 'Account temporarily locked due to too many failed attempts. Please try again later.' 
+          };
+        } else {
+          // Reset if lockout period expired
+          localStorage.removeItem('loginAttempts');
+          localStorage.removeItem('loginLockoutUntil');
+        }
+      }
       
       const matchedLogin = allowedLogins.find(
         login => (login.email === email && login.password === password)
@@ -79,9 +95,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Demo login with hardcoded credentials - manually set auth state
         setUser({ 
           id: 'demo-user-id',
-          email: matchedLogin.email === 'admin' ? 'admin@example.com' : matchedLogin.email
+          email: matchedLogin.email === 'admin' ? 'admin@example.com' : matchedLogin.email,
+          role: 'admin' // Set admin role for demo users
         });
         setIsAuthenticated(true);
+        
+        // Reset failed login attempts
+        localStorage.removeItem('loginAttempts');
+        localStorage.removeItem('loginLockoutUntil');
         
         toast({
           title: 'Login successful',
@@ -108,6 +129,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
       }
 
+      // Reset failed login attempts on successful login
+      localStorage.removeItem('loginAttempts');
+      localStorage.removeItem('loginLockoutUntil');
+      
       toast({
         title: 'Login successful',
         description: 'Welcome back!',
@@ -116,11 +141,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { success: true };
     } catch (error: any) {
       console.error('Login error:', error);
+      
+      // Increment failed login attempts
+      const attempts = parseInt(localStorage.getItem('loginAttempts') || '0', 10) + 1;
+      localStorage.setItem('loginAttempts', attempts.toString());
+      
+      // Lock account after 5 failed attempts
+      if (attempts >= 5) {
+        const lockUntil = new Date(new Date().getTime() + 15 * 60 * 1000); // 15 minutes
+        localStorage.setItem('loginLockoutUntil', lockUntil.toString());
+      }
+      
       toast({
         title: 'Login failed',
         description: error.message || 'An error occurred during login',
         variant: 'destructive',
       });
+      
       return { 
         success: false, 
         error: error.message || 'Login failed' 
@@ -164,7 +201,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!user) return false;
       
       // For the demo, we'll consider these emails as admin
-      return user.email === 'admin@example.com' || user.email === 'sakib@zoolyum.com';
+      if (user.email === 'admin@example.com' || user.email === 'sakib@zoolyum.com' || user.role === 'admin') {
+        return true;
+      }
+      
+      // In a real app, you might check a roles table in your database
+      // const { data, error } = await supabase
+      //   .from('user_roles')
+      //   .select('role')
+      //   .eq('user_id', user.id)
+      //   .eq('role', 'admin')
+      //   .single();
+      
+      // return !error && data;
+      
+      return false;
     } catch (error) {
       console.error('Error checking admin status:', error);
       return false;

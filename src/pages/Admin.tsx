@@ -12,6 +12,8 @@ import AdminBlog from "@/components/admin/AdminBlog";
 import AdminFaq from "@/components/admin/AdminFaq";
 import AdminFooter from "@/components/admin/AdminFooter";
 import AdminContact from "@/components/admin/AdminContact";
+import AdminServices from "@/components/admin/AdminServices";
+import AdminHeader from "@/components/admin/AdminHeader";
 
 const Admin = () => {
   const { logout, user } = useAuth();
@@ -20,12 +22,12 @@ const Admin = () => {
   return (
     <>
       <Helmet>
-        <title>Admin Dashboard</title>
+        <title>Zoolyum CMS - Admin Dashboard</title>
       </Helmet>
       <div className="min-h-screen bg-gray-50">
         <div className="container mx-auto p-4">
           <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold">Admin Panel</h1>
+            <h1 className="text-3xl font-bold">Zoolyum CMS</h1>
             <div className="flex gap-4 items-center">
               <div className="text-sm text-muted-foreground">
                 Logged in as: {user?.email}
@@ -42,6 +44,8 @@ const Admin = () => {
           <Tabs defaultValue="dashboard" className="w-full">
             <TabsList className="mb-8">
               <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+              <TabsTrigger value="header">Header</TabsTrigger>
+              <TabsTrigger value="services">Services</TabsTrigger>
               <TabsTrigger value="contact">Contact</TabsTrigger>
               <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
               <TabsTrigger value="case-studies">Case Studies</TabsTrigger>
@@ -52,6 +56,14 @@ const Admin = () => {
             
             <TabsContent value="dashboard">
               <AdminDashboard />
+            </TabsContent>
+            
+            <TabsContent value="header">
+              <AdminHeader />
+            </TabsContent>
+            
+            <TabsContent value="services">
+              <AdminServices />
             </TabsContent>
             
             <TabsContent value="contact">
