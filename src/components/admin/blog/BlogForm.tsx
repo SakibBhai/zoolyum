@@ -7,14 +7,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import FileUpload from "../common/FileUpload";
-import { Info, PlusCircle, BookOpen, Lightbulb } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { PlusCircle, Info } from "lucide-react";
+import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { 
-  Collapsible, 
-  CollapsibleContent, 
-  CollapsibleTrigger 
-} from "@/components/ui/collapsible";
 import { supabase } from "@/integrations/supabase/client";
 
 // Blog post interface
@@ -42,7 +37,6 @@ const BlogForm = ({ initialPost, onSubmit, onCancel }: BlogFormProps) => {
   ]);
   const [newCategory, setNewCategory] = useState("");
   const [showCustomCategory, setShowCustomCategory] = useState(false);
-  const [showSeoTips, setShowSeoTips] = useState(false);
 
   // Fetch existing categories from blog_posts table
   useEffect(() => {
@@ -98,81 +92,6 @@ const BlogForm = ({ initialPost, onSubmit, onCancel }: BlogFormProps) => {
   return (
     <Card>
       <CardContent className="pt-6">
-        {/* SEO Tips Collapsible Section */}
-        <Collapsible 
-          open={showSeoTips} 
-          onOpenChange={setShowSeoTips}
-          className="mb-6 border border-border rounded-lg overflow-hidden"
-        >
-          <CollapsibleTrigger className="flex justify-between items-center w-full p-4 text-left bg-muted/30">
-            <div className="flex items-center gap-2">
-              <Lightbulb className="h-5 w-5 text-amber-500" />
-              <h3 className="font-medium">SEO Best Practices</h3>
-            </div>
-            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-              {showSeoTips ? "-" : "+"}
-            </Button>
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <div className="p-4 bg-card text-sm space-y-4">
-              <div>
-                <h4 className="font-semibold mb-1">SEO-Friendly URL Structure:</h4>
-                <p>Keep URLs short and descriptive:</p>
-                <div className="mt-1 space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-green-500 font-medium">✅</span>
-                    <code className="bg-muted px-2 py-1 rounded text-xs">example.com/real-estate-investment-dubai</code>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-red-500 font-medium">❌</span>
-                    <code className="bg-muted px-2 py-1 rounded text-xs">example.com/blog?id=1234</code>
-                  </div>
-                </div>
-              </div>
-              
-              <div>
-                <h4 className="font-semibold mb-1">Optimized Headings & Content:</h4>
-                <ul className="list-disc list-inside ml-2 space-y-1">
-                  <li>Use H1 for the main title and H2-H3 for subheadings.</li>
-                  <li>Write engaging and value-driven content.</li>
-                  <li>Use bullet points & short paragraphs for readability.</li>
-                </ul>
-              </div>
-              
-              <div>
-                <h4 className="font-semibold mb-1">Meta Title & Description:</h4>
-                <ul className="list-disc list-inside ml-2 space-y-1">
-                  <li>Meta Title: 50-60 characters, keyword-rich, catchy.</li>
-                  <li>Meta Description: 150-160 characters, summarizing the content.</li>
-                </ul>
-                <div className="mt-1">
-                  <p>Example:</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-green-500 font-medium">✅</span>
-                    <p className="text-xs font-medium">"Top 10 Real Estate Investment Tips in Dubai | Expert Guide"</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div>
-                <h4 className="font-semibold mb-1">Internal & External Linking:</h4>
-                <ul className="list-disc list-inside ml-2 space-y-1">
-                  <li>Link to other relevant blog posts & service pages within your site.</li>
-                  <li>Include external links to high-authority sources for credibility.</li>
-                </ul>
-              </div>
-              
-              <div>
-                <h4 className="font-semibold mb-1">Image Optimization:</h4>
-                <ul className="list-disc list-inside ml-2 space-y-1">
-                  <li>Use descriptive filenames & ALT text for images.</li>
-                  <li>Compress images to improve page load speed.</li>
-                </ul>
-              </div>
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
-        
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="title">Title</Label>
@@ -317,15 +236,6 @@ const BlogForm = ({ initialPost, onSubmit, onCancel }: BlogFormProps) => {
           </div>
           
           <div className="flex gap-2 justify-end mt-6">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => setShowSeoTips(!showSeoTips)}
-              className="mr-auto"
-            >
-              <BookOpen className="mr-2 h-4 w-4" />
-              {showSeoTips ? "Hide SEO Tips" : "Show SEO Tips"}
-            </Button>
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel
             </Button>
