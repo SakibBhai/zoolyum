@@ -11,6 +11,7 @@ import { PlusCircle, Info } from "lucide-react";
 import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 // Blog post interface
 interface BlogPost {
@@ -37,6 +38,8 @@ const BlogForm = ({ initialPost, onSubmit, onCancel }: BlogFormProps) => {
   ]);
   const [newCategory, setNewCategory] = useState("");
   const [showCustomCategory, setShowCustomCategory] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
 
   // Fetch existing categories from blog_posts table
   useEffect(() => {
@@ -71,9 +74,35 @@ const BlogForm = ({ initialPost, onSubmit, onCancel }: BlogFormProps) => {
     setPost(initialPost);
   }, [initialPost]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(post);
+    setIsSubmitting(true);
+    
+    try {
+      // Validate required fields
+      if (!post.title || !post.category || !post.author || !post.date || !post.content) {
+        throw new Error("Please fill in all required fields");
+      }
+      
+      // Pass the post data to the parent component
+      await onSubmit(post);
+      
+      toast({
+        title: post.id ? "Post updated" : "Post published",
+        description: post.id 
+          ? "Your blog post has been updated successfully" 
+          : "Your new blog post has been published",
+      });
+    } catch (error) {
+      console.error("Error saving post:", error);
+      toast({
+        title: "Error saving post",
+        description: error.message || "There was a problem saving your post",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleImageUpload = (url: string) => {
@@ -236,11 +265,23 @@ const BlogForm = ({ initialPost, onSubmit, onCancel }: BlogFormProps) => {
           </div>
           
           <div className="flex gap-2 justify-end mt-6">
-            <Button type="button" variant="outline" onClick={onCancel}>
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={onCancel}
+              disabled={isSubmitting}
+            >
               Cancel
             </Button>
-            <Button type="submit">
-              {post.id ? "Update Post" : "Publish Post"}
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <span className="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></span>
+                  {post.id ? "Updating..." : "Publishing..."}
+                </>
+              ) : (
+                post.id ? "Update Post" : "Publish Post"
+              )}
             </Button>
           </div>
         </form>
