@@ -7,6 +7,7 @@ import { Upload, Image as ImageIcon, X } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface FileUploadProps {
   onUploadComplete: (url: string) => void;
@@ -19,6 +20,7 @@ const FileUpload = ({ onUploadComplete, currentImageUrl, label = "Image" }: File
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(currentImageUrl || null);
   const { toast } = useToast();
+  const { isAuthenticated } = useAuth();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -46,6 +48,11 @@ const FileUpload = ({ onUploadComplete, currentImageUrl, label = "Image" }: File
       
       // Upload to public folder to simplify access
       const filePath = `public/${fileName}`;
+
+      // Check if the user is authenticated before uploading
+      if (!isAuthenticated) {
+        throw new Error('You must be logged in to upload files');
+      }
 
       // Upload the file to Supabase Storage
       const { data, error } = await supabase.storage
@@ -134,6 +141,14 @@ const FileUpload = ({ onUploadComplete, currentImageUrl, label = "Image" }: File
       {uploadError && (
         <Alert variant="destructive">
           <AlertDescription>{uploadError}</AlertDescription>
+        </Alert>
+      )}
+      
+      {!isAuthenticated && (
+        <Alert variant="destructive">
+          <AlertDescription>
+            You must be logged in to upload files. Please log in first.
+          </AlertDescription>
         </Alert>
       )}
     </div>
