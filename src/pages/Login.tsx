@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -6,9 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Helmet } from 'react-helmet';
 import { Label } from '@/components/ui/label';
-import { AlertCircle, CheckCircle, Eye, EyeOff, Shield } from 'lucide-react';
+import { AlertCircle, CheckCircle, Eye, EyeOff, Shield, LogIn } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Textarea } from '@/components/ui/textarea';
+
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -21,10 +22,12 @@ const Login = () => {
   const [showTwoFactor, setShowTwoFactor] = useState(false); // For demo purposes
   const [passwordStrength, setPasswordStrength] = useState(0);
   const [successMessage, setSuccessMessage] = useState('');
+  
   const {
     login,
     isAuthenticated
   } = useAuth();
+  
   const navigate = useNavigate();
 
   // Check if there's a stored lockout time
@@ -112,6 +115,7 @@ const Login = () => {
       setError('Invalid verification code. Please try again.');
     }
   };
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isLocked) {
@@ -167,7 +171,8 @@ const Login = () => {
 
   // Render the 2FA verification screen if needed
   if (showTwoFactor) {
-    return <>
+    return (
+      <>
         <Helmet>
           <title>Zoolyum CMS - Two-Factor Authentication</title>
         </Helmet>
@@ -184,13 +189,13 @@ const Login = () => {
             </CardHeader>
             <CardContent>
               <form onSubmit={e => {
-              e.preventDefault();
-              handleTwoFactorVerify();
-            }} className="space-y-4">
+                e.preventDefault();
+                handleTwoFactorVerify();
+              }} className="space-y-4">
                 {error && <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>{error}</AlertDescription>
-                  </Alert>}
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>}
                 
                 <div className="space-y-2">
                   <Label htmlFor="verificationCode">Verification Code</Label>
@@ -211,16 +216,22 @@ const Login = () => {
             </CardContent>
           </Card>
         </div>
-      </>;
+      </>
+    );
   }
-  return <>
+  
+  return (
+    <>
       <Helmet>
         <title>Zoolyum CMS - Admin Login</title>
       </Helmet>
       <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle className="text-2xl">Zoolyum CMS - Admin Login</CardTitle>
+            <CardTitle className="text-2xl flex items-center">
+              <LogIn className="mr-2 h-6 w-6 text-primary" />
+              Admin Login
+            </CardTitle>
             <CardDescription>
               Login to access the admin panel. Only authorized personnel.
             </CardDescription>
@@ -228,22 +239,22 @@ const Login = () => {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               {successMessage && <Alert className="bg-green-50 border-green-200 text-green-600">
-                  <CheckCircle className="h-4 w-4" />
-                  <AlertDescription>{successMessage}</AlertDescription>
-                </Alert>}
+                <CheckCircle className="h-4 w-4" />
+                <AlertDescription>{successMessage}</AlertDescription>
+              </Alert>}
               
               {isLocked && <Alert variant="destructive">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
-                    Account temporarily locked due to too many failed attempts. 
-                    Try again in {getTimeRemaining()} minutes.
-                  </AlertDescription>
-                </Alert>}
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  Account temporarily locked due to too many failed attempts. 
+                  Try again in {getTimeRemaining()} minutes.
+                </AlertDescription>
+              </Alert>}
               
               {error && !isLocked && <Alert variant="destructive">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>}
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>}
               
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium">
@@ -265,34 +276,36 @@ const Login = () => {
                 
                 {/* Password strength indicator (only show when typing) */}
                 {password && <div className="mt-1">
-                    <div className="h-1 w-full bg-gray-200 rounded-full overflow-hidden">
-                      <div className={`h-full transition-all ${passwordStrength <= 1 ? 'bg-red-500' : passwordStrength <= 3 ? 'bg-yellow-500' : 'bg-green-500'}`} style={{
-                    width: `${passwordStrength / 5 * 100}%`
-                  }}></div>
-                    </div>
-                    <p className="text-xs mt-1 text-gray-500">
-                      {passwordStrength <= 1 ? 'Weak' : passwordStrength <= 3 ? 'Medium' : 'Strong'} password
-                    </p>
-                  </div>}
+                  <div className="h-1 w-full bg-gray-200 rounded-full overflow-hidden">
+                    <div className={`h-full transition-all ${passwordStrength <= 1 ? 'bg-red-500' : passwordStrength <= 3 ? 'bg-yellow-500' : 'bg-green-500'}`} style={{
+                      width: `${passwordStrength / 5 * 100}%`
+                    }}></div>
+                  </div>
+                  <p className="text-xs mt-1 text-gray-500">
+                    {passwordStrength <= 1 ? 'Weak' : passwordStrength <= 3 ? 'Medium' : 'Strong'} password
+                  </p>
+                </div>}
               </div>
               
               <Button type="submit" className="w-full" disabled={isLoading || isLocked}>
                 {isLoading ? <span className="flex items-center">
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Signing in...
-                  </span> : 'Sign In'}
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Signing in...
+                </span> : 'Sign In'}
               </Button>
               
               <div className="text-center text-sm text-muted-foreground pt-2">
-                
+                <p>Administrator access only</p>
               </div>
             </form>
           </CardContent>
         </Card>
       </div>
-    </>;
+    </>
+  );
 };
+
 export default Login;
