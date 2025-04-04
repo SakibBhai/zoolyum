@@ -58,7 +58,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         toast({
           title: "Session Expiring Soon",
           description: "Your session will expire due to inactivity. Please take action to stay logged in.",
-          variant: "warning",
+          variant: "default", // Changed from "warning" to "default"
         });
       }
       
