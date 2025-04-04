@@ -18,6 +18,15 @@ interface HeaderData {
   logoImage: string;
 }
 
+// Create a more flexible type for accessing data without TypeScript errors
+interface SiteContentRow {
+  id: string;
+  section: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+}
+
 const AdminHeader = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [headerData, setHeaderData] = useState<HeaderData>({
@@ -35,6 +44,7 @@ const AdminHeader = () => {
   useEffect(() => {
     const fetchHeaderData = async () => {
       try {
+        // Use the any type to bypass TypeScript checking for now
         const { data, error } = await supabase
           .from('site_content')
           .select('*')
@@ -61,6 +71,7 @@ const AdminHeader = () => {
     setIsLoading(true);
 
     try {
+      // Use the any type to bypass TypeScript checking for now
       const { data, error } = await supabase
         .from('site_content')
         .select('*')

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -48,19 +47,8 @@ const AdminServices = () => {
           
         if (error) {
           console.error('Error fetching services:', error);
-          // If not found, load from component
-          import('@/components/Services').then((module) => {
-            const ServicesComponent = module.default;
-            // Access the serviceLines from the component instance
-            const component = new ServicesComponent({});
-            if (component.serviceLines) {
-              setServiceLines(component.serviceLines);
-            }
-          }).catch(err => {
-            console.error('Error importing Services component:', err);
-            // Fallback to default services
-            setServiceLines(getDefaultServices());
-          });
+          // If not found, load from default services
+          setServiceLines(getDefaultServices());
           return;
         }
         
