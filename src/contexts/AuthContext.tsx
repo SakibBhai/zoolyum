@@ -99,7 +99,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Login function with enhanced security
+  // Login function with enhanced security and database authentication
   const login = async (email: string, password: string) => {
     try {
       // Implement rate limiting
@@ -130,70 +130,52 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.removeItem('loginLockoutUntil');
       }
       
-      // Demo login with hardcoded credentials for development purposes
-      const allowedLogins = [
-        { email: 'admin@example.com', password: 'admin123' },
-        { email: 'admin', password: 'admin123' },
-        { email: 'sakib@zoolyum.com', password: '1225@Sakib' }
-      ];
+      // Query the database for the user with the provided email
+      const { data: users, error: userError } = await supabase
+        .from('app_users')
+        .select('*')
+        .eq('email', email)
+        .single();
       
-      const matchedLogin = allowedLogins.find(
-        login => (login.email === email && login.password === password)
-      );
+      if (userError || !users) {
+        throw new Error('Invalid email or password');
+      }
       
-      if (matchedLogin) {
-        // Demo login with hardcoded credentials - manually set auth state
-        setUser({ 
-          id: 'demo-user-id',
-          email: matchedLogin.email === 'admin' ? 'admin@example.com' : matchedLogin.email,
-          role: 'admin', // Set admin role for demo users
-          app_metadata: { role: 'admin' },
-          user_metadata: { role: 'admin' },
-          aud: 'authenticated',
-          created_at: new Date().toISOString()
-        } as User);
-        
-        setIsAuthenticated(true);
-        
-        // Reset failed login attempts
-        localStorage.removeItem('loginAttempts');
-        localStorage.removeItem('loginLockoutUntil');
-        
-        toast({
-          title: 'Login successful',
-          description: 'Welcome to the admin panel!',
-        });
-        
-        return { success: true };
+      // Simple password check (in production, use proper hashing)
+      if (users.password_hash !== password) {
+        throw new Error('Invalid email or password');
       }
-
-      // Regular login flow for non-demo users (only execute this if not using demo credentials)
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) throw error;
-
-      const isAdmin = await checkAdminStatus();
-      if (!isAdmin) {
-        await logout();
-        return { 
-          success: false, 
-          error: 'Not authorized as admin' 
-        };
-      }
-
-      // Reset failed login attempts on successful login
+      
+      // Update last_login timestamp
+      await supabase
+        .from('app_users')
+        .update({ last_login: new Date().toISOString() })
+        .eq('id', users.id);
+      
+      // Set authenticated user
+      setUser({ 
+        id: users.id,
+        email: users.email,
+        role: users.role,
+        app_metadata: { role: users.role },
+        user_metadata: { role: users.role },
+        aud: 'authenticated',
+        created_at: users.created_at
+      } as User);
+      
+      setIsAuthenticated(true);
+      
+      // Reset failed login attempts
       localStorage.removeItem('loginAttempts');
       localStorage.removeItem('loginLockoutUntil');
       
       toast({
         title: 'Login successful',
-        description: 'Welcome back!',
+        description: 'Welcome to the admin panel!',
       });
       
       return { success: true };
+      
     } catch (error: any) {
       console.error('Login error:', error);
       
@@ -225,33 +207,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Logout function with security enhancements
+  // Logout function
   const logout = async () => {
     try {
-      // For demo login, just reset state
-      if (user && (user.email === 'admin@example.com' || user.email === 'sakib@zoolyum.com')) {
-        setUser(null);
-        setSession(null);
-        setIsAuthenticated(false);
-        
-        // Clear session data from storage for extra security
-        localStorage.removeItem('supabase.auth.token');
-        sessionStorage.removeItem('supabase.auth.token');
-        
-        toast({
-          title: 'Logged out',
-          description: 'You have been successfully logged out',
-        });
-        return;
-      }
-      
-      // Regular logout for non-demo users
-      await supabase.auth.signOut();
-      
-      // Ensure all auth state is reset
+      // Reset authentication state
       setUser(null);
       setSession(null);
       setIsAuthenticated(false);
+      
+      // Clear session data from storage for extra security
+      localStorage.removeItem('supabase.auth.token');
+      sessionStorage.removeItem('supabase.auth.token');
       
       toast({
         title: 'Logged out',
@@ -267,29 +233,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Check if user is an admin with improved security
+  // Check if user is an admin
   const checkAdminStatus = async (): Promise<boolean> => {
     try {
       if (!user) return false;
       
-      // For the demo, consider these emails as admin
-      if (user.email === 'admin@example.com' || user.email === 'sakib@zoolyum.com' || 
-          user.role === 'admin' || user.app_metadata?.role === 'admin' || 
-          user.user_metadata?.role === 'admin') {
-        return true;
-      }
+      // Query the database to check if the user has admin role
+      const { data: userRole, error } = await supabase
+        .from('app_users')
+        .select('role')
+        .eq('id', user.id)
+        .single();
       
-      // In a real app, you might check a roles table in your database
-      // const { data, error } = await supabase
-      //   .from('user_roles')
-      //   .select('role')
-      //   .eq('user_id', user.id)
-      //   .eq('role', 'admin')
-      //   .single();
+      if (error || !userRole) return false;
       
-      // return !error && data;
-      
-      return false;
+      return userRole.role === 'admin';
     } catch (error) {
       console.error('Error checking admin status:', error);
       return false;

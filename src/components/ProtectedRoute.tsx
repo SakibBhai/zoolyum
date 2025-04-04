@@ -58,7 +58,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         toast({
           title: "Session Expiring Soon",
           description: "Your session will expire due to inactivity. Please take action to stay logged in.",
-          variant: "default", // Changed from "warning" to "default"
+          variant: "default",
         });
       }
       
@@ -134,20 +134,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   return (
     <div className="admin-authenticated">
-      {/* Admin Security Banner */}
-      <div className="bg-primary/10 border-b border-primary/20 py-2 px-4 flex items-center justify-between">
-        <div className="flex items-center text-sm text-primary">
-          <Shield className="h-4 w-4 mr-2" />
-          <span>Secured Admin Area</span>
-        </div>
-        <div className="text-xs text-muted-foreground">
-          {showTimeout ? (
-            <span className="text-destructive font-medium">Session expiring soon</span>
-          ) : (
-            <span>Activity monitored for security</span>
-          )}
-        </div>
-      </div>
       {children}
     </div>
   );

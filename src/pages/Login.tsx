@@ -19,7 +19,7 @@ const Login = () => {
   const [loginAttempts, setLoginAttempts] = useState(0);
   const [lockedUntil, setLockedUntil] = useState<Date | null>(null);
   const [twoFactorCode, setTwoFactorCode] = useState('');
-  const [showTwoFactor, setShowTwoFactor] = useState(false); // For demo purposes
+  const [showTwoFactor, setShowTwoFactor] = useState(false); 
   const [passwordStrength, setPasswordStrength] = useState(0);
   const [successMessage, setSuccessMessage] = useState('');
   
@@ -260,7 +260,7 @@ const Login = () => {
                 <Label htmlFor="email" className="text-sm font-medium">
                   Email
                 </Label>
-                <Input id="email" type="text" value={email} onChange={e => setEmail(e.target.value)} required disabled={isLoading || isLocked} placeholder="admin@example.com or admin" className="bg-white" />
+                <Input id="email" type="text" value={email} onChange={e => setEmail(e.target.value)} required disabled={isLoading || isLocked} placeholder="admin@example.com" className="bg-white" />
               </div>
               
               <div className="space-y-2">
