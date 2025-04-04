@@ -2,10 +2,11 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
+import { Session, User } from '@supabase/supabase-js';
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  user: any | null;
+  user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
@@ -23,19 +24,37 @@ export const useAuth = () => {
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<any | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+  const [lastLoginAttempt, setLastLoginAttempt] = useState<number>(0);
   const { toast } = useToast();
+
+  // Configuration for login security
+  const MAX_LOGIN_ATTEMPTS = 5;
+  const LOCKOUT_DURATION = 15 * 60 * 1000; // 15 minutes in milliseconds
+  const MIN_LOGIN_INTERVAL = 1000; // 1 second between login attempts to prevent brute force
 
   // Check if current session exists on mount
   useEffect(() => {
     const checkSession = async () => {
       try {
+        // Set up auth state listener FIRST
+        const { data: authListener } = supabase.auth.onAuthStateChange(
+          (_event, session) => {
+            setSession(session);
+            setUser(session?.user || null);
+            setIsAuthenticated(!!session);
+          }
+        );
+
+        // THEN check for existing session
         const { data, error } = await supabase.auth.getSession();
         if (error) throw error;
         
         if (data.session) {
+          setSession(data.session);
           setUser(data.session.user);
           setIsAuthenticated(true);
         }
@@ -44,48 +63,79 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } finally {
         setLoading(false);
       }
+
+      return () => {
+        // Cleanup auth listener
+      };
     };
 
     checkSession();
-
-    // Listen for auth changes
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        setUser(session?.user || null);
-        setIsAuthenticated(!!session);
-      }
-    );
-
-    return () => {
-      authListener?.subscription.unsubscribe();
-    };
   }, []);
 
-  // Login function with rate limiting and additional security
+  // Helper function to get sanitized login attempts from localStorage
+  const getSanitizedLoginAttempts = (): number => {
+    try {
+      const attempts = localStorage.getItem('loginAttempts');
+      if (!attempts) return 0;
+      const parsedAttempts = parseInt(attempts, 10);
+      return isNaN(parsedAttempts) ? 0 : parsedAttempts;
+    } catch (e) {
+      console.error('Error reading login attempts:', e);
+      return 0;
+    }
+  };
+
+  // Helper function to get account lockout time from localStorage
+  const getAccountLockoutTime = (): Date | null => {
+    try {
+      const lockoutTime = localStorage.getItem('loginLockoutUntil');
+      if (!lockoutTime) return null;
+      
+      const lockTime = new Date(lockoutTime);
+      return isNaN(lockTime.getTime()) ? null : lockTime;
+    } catch (e) {
+      console.error('Error reading lockout time:', e);
+      return null;
+    }
+  };
+
+  // Login function with enhanced security
   const login = async (email: string, password: string) => {
     try {
-      // For demo login, allow specific credentials with improved security checks
+      // Implement rate limiting
+      const now = Date.now();
+      if (now - lastLoginAttempt < MIN_LOGIN_INTERVAL) {
+        return { 
+          success: false, 
+          error: 'Please wait before trying again.' 
+        };
+      }
+      setLastLoginAttempt(now);
+      
+      // Check for account lockout
+      const lockoutTime = getAccountLockoutTime();
+      if (lockoutTime && lockoutTime > new Date()) {
+        const timeRemaining = Math.ceil((lockoutTime.getTime() - now) / 60000);
+        return { 
+          success: false, 
+          error: `Account temporarily locked due to too many failed attempts. Try again in ${timeRemaining} minute(s).` 
+        };
+      }
+
+      // Check for previous failed attempts
+      const previousFailedAttempts = getSanitizedLoginAttempts();
+      if (previousFailedAttempts >= MAX_LOGIN_ATTEMPTS) {
+        // Reset if lockout period expired
+        localStorage.removeItem('loginAttempts');
+        localStorage.removeItem('loginLockoutUntil');
+      }
+      
+      // Demo login with hardcoded credentials for development purposes
       const allowedLogins = [
         { email: 'admin@example.com', password: 'admin123' },
         { email: 'admin', password: 'admin123' },
         { email: 'sakib@zoolyum.com', password: '1225@Sakib' }
       ];
-      
-      // Check for previous failed attempts and potential brute force attacks
-      const previousFailedAttempts = parseInt(localStorage.getItem('loginAttempts') || '0', 10);
-      if (previousFailedAttempts >= 5) {
-        const lockoutTime = localStorage.getItem('loginLockoutUntil');
-        if (lockoutTime && new Date(lockoutTime) > new Date()) {
-          return { 
-            success: false, 
-            error: 'Account temporarily locked due to too many failed attempts. Please try again later.' 
-          };
-        } else {
-          // Reset if lockout period expired
-          localStorage.removeItem('loginAttempts');
-          localStorage.removeItem('loginLockoutUntil');
-        }
-      }
       
       const matchedLogin = allowedLogins.find(
         login => (login.email === email && login.password === password)
@@ -96,8 +146,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser({ 
           id: 'demo-user-id',
           email: matchedLogin.email === 'admin' ? 'admin@example.com' : matchedLogin.email,
-          role: 'admin' // Set admin role for demo users
-        });
+          role: 'admin', // Set admin role for demo users
+          app_metadata: { role: 'admin' },
+          user_metadata: { role: 'admin' },
+          aud: 'authenticated',
+          created_at: new Date().toISOString()
+        } as User);
+        
         setIsAuthenticated(true);
         
         // Reset failed login attempts
@@ -142,14 +197,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error: any) {
       console.error('Login error:', error);
       
-      // Increment failed login attempts
-      const attempts = parseInt(localStorage.getItem('loginAttempts') || '0', 10) + 1;
+      // Increment failed login attempts with extra validation
+      const attempts = getSanitizedLoginAttempts() + 1;
       localStorage.setItem('loginAttempts', attempts.toString());
       
-      // Lock account after 5 failed attempts
-      if (attempts >= 5) {
-        const lockUntil = new Date(new Date().getTime() + 15 * 60 * 1000); // 15 minutes
+      // Lock account after MAX_LOGIN_ATTEMPTS failed attempts
+      if (attempts >= MAX_LOGIN_ATTEMPTS) {
+        const lockUntil = new Date(Date.now() + LOCKOUT_DURATION);
         localStorage.setItem('loginLockoutUntil', lockUntil.toString());
+        
+        return {
+          success: false,
+          error: `Too many failed login attempts. Your account has been locked for ${LOCKOUT_DURATION/60000} minutes.`
+        };
       }
       
       toast({
@@ -165,13 +225,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Logout function
+  // Logout function with security enhancements
   const logout = async () => {
     try {
       // For demo login, just reset state
       if (user && (user.email === 'admin@example.com' || user.email === 'sakib@zoolyum.com')) {
         setUser(null);
+        setSession(null);
         setIsAuthenticated(false);
+        
+        // Clear session data from storage for extra security
+        localStorage.removeItem('supabase.auth.token');
+        sessionStorage.removeItem('supabase.auth.token');
+        
         toast({
           title: 'Logged out',
           description: 'You have been successfully logged out',
@@ -181,6 +247,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // Regular logout for non-demo users
       await supabase.auth.signOut();
+      
+      // Ensure all auth state is reset
+      setUser(null);
+      setSession(null);
+      setIsAuthenticated(false);
+      
       toast({
         title: 'Logged out',
         description: 'You have been successfully logged out',
@@ -195,13 +267,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Check if user is an admin
+  // Check if user is an admin with improved security
   const checkAdminStatus = async (): Promise<boolean> => {
     try {
       if (!user) return false;
       
-      // For the demo, we'll consider these emails as admin
-      if (user.email === 'admin@example.com' || user.email === 'sakib@zoolyum.com' || user.role === 'admin') {
+      // For the demo, consider these emails as admin
+      if (user.email === 'admin@example.com' || user.email === 'sakib@zoolyum.com' || 
+          user.role === 'admin' || user.app_metadata?.role === 'admin' || 
+          user.user_metadata?.role === 'admin') {
         return true;
       }
       

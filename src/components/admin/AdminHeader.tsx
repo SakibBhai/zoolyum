@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
 import FileUpload from './common/FileUpload';
 import { supabase } from '@/integrations/supabase/client';
+import { Database } from '@/integrations/supabase/types';
 
 interface HeaderData {
   title: string;
@@ -18,14 +19,8 @@ interface HeaderData {
   logoImage: string;
 }
 
-// Create a more flexible type for accessing data without TypeScript errors
-interface SiteContentRow {
-  id: string;
-  section: string;
-  content: string;
-  created_at: string;
-  updated_at: string;
-}
+// Use correct typing for Supabase site_content table
+type SiteContent = Database['public']['Tables']['site_content']['Row'];
 
 const AdminHeader = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -44,12 +39,12 @@ const AdminHeader = () => {
   useEffect(() => {
     const fetchHeaderData = async () => {
       try {
-        // Use the any type to bypass TypeScript checking for now
+        // Use correct typing for the Supabase query
         const { data, error } = await supabase
           .from('site_content')
           .select('*')
           .eq('section', 'header')
-          .single();
+          .single() as { data: SiteContent | null, error: any };
 
         if (error) {
           console.error('Error fetching header:', error);
@@ -57,6 +52,7 @@ const AdminHeader = () => {
         }
 
         if (data?.content) {
+          // Parse the JSON content field
           setHeaderData(JSON.parse(data.content));
         }
       } catch (error) {
@@ -71,12 +67,12 @@ const AdminHeader = () => {
     setIsLoading(true);
 
     try {
-      // Use the any type to bypass TypeScript checking for now
+      // Use correct typing for the Supabase query
       const { data, error } = await supabase
         .from('site_content')
         .select('*')
         .eq('section', 'header')
-        .maybeSingle();
+        .maybeSingle() as { data: SiteContent | null, error: any };
 
       let saveError;
 
@@ -85,7 +81,7 @@ const AdminHeader = () => {
         const { error: updateError } = await supabase
           .from('site_content')
           .update({ content: JSON.stringify(headerData) })
-          .eq('section', 'header');
+          .eq('section', 'header') as { error: any };
 
         saveError = updateError;
       } else {
@@ -95,7 +91,7 @@ const AdminHeader = () => {
           .insert([{ 
             section: 'header', 
             content: JSON.stringify(headerData) 
-          }]);
+          }]) as { error: any };
 
         saveError = insertError;
       }
