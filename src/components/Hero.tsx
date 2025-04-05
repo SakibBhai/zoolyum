@@ -64,84 +64,79 @@ const Hero = () => {
   return (
     <section
       id="home"
-      className="min-h-screen flex items-center justify-center relative overflow-hidden pt-20 px-4"
+      className="min-h-screen flex items-center relative overflow-hidden pt-20 px-4"
+      style={{
+        background: "linear-gradient(135deg, #1E293B 0%, #FF5001 200%)",
+      }}
     >
-      {/* Enhanced animated background shapes */}
-      <div className="absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute top-1/4 left-1/3 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/3 w-96 h-96 bg-secondary/5 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-accent/10 rounded-full blur-3xl animate-pulse [animation-delay:2s]"></div>
-        <div className="absolute bottom-1/3 left-1/4 w-48 h-48 bg-primary/5 rounded-full blur-2xl animate-pulse [animation-delay:1.5s]"></div>
-        <div className="absolute top-1/3 right-1/4 w-56 h-56 bg-accent/5 rounded-full blur-2xl animate-pulse [animation-delay:3s]"></div>
-      </div>
-
-      <div className="container mx-auto text-center relative z-10">
-        <div className="inline-block mb-4 transition-all hover:scale-105 animate-fade-in">
-          <span className="px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium shadow-sm">
-            #BrandingPowerhouse
-          </span>
-        </div>
-        
-        <h1 className="mt-6 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-secondary animate-fade-up tracking-tight leading-tight">
-          Transform Your Brand with
-          <span className="text-primary relative inline-block ml-2 md:ml-3">
-            Zoolyum
-            <span className="absolute -bottom-2 left-0 w-full h-1 bg-primary/30 rounded-full"></span>
-          </span>
-        </h1>
-        
-        <p className="mt-6 text-base sm:text-lg md:text-xl text-secondary/80 max-w-2xl mx-auto animate-fade-up [animation-delay:200ms] leading-relaxed">
-          We craft compelling brand experiences that captivate audiences and drive
-          growth. Your vision, our expertise – together we'll create something
-          extraordinary.
-        </p>
-        
-        <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-up [animation-delay:400ms]">
-          <a
-            href="#contact"
-            className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 bg-primary text-white rounded-full hover:bg-primary-hover transition-all duration-300 transform hover:scale-105 hover:shadow-lg shadow-md group"
-          >
-            <span>Get Started</span>
-            <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-          </a>
-          <a
-            href="#portfolio"
-            className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 border-2 border-secondary/20 text-secondary rounded-full hover:bg-secondary/5 transition-all duration-300 shadow-sm hover:shadow-md"
-          >
-            View Our Work
-          </a>
-        </div>
-
-        {/* Responsive stats grid */}
-        <div 
-          ref={statsRef}
-          className="mt-16 md:mt-20 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 max-w-4xl mx-auto animate-fade-up [animation-delay:600ms]"
-        >
-          {[
-            { number: hasAnimated ? animatedStats.clients : "0", suffix: "+", label: "Happy Clients" },
-            { number: hasAnimated ? animatedStats.projects : "0", suffix: "+", label: "Projects Completed" },
-            { number: hasAnimated ? animatedStats.years : "0", suffix: "+", label: "Years Experience" },
-            { number: hasAnimated ? animatedStats.awards : "0", suffix: "+", label: "Industry Awards" },
-          ].map((stat, index) => (
-            <div 
-              key={index} 
-              className="p-4 rounded-xl glass hover:shadow-md transition-all duration-300 hover:scale-105 hover:bg-white/80"
+      {/* Subtle gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-black/40 via-transparent to-transparent z-0"></div>
+      
+      <div className="container mx-auto relative z-10 mt-10">
+        <div className="max-w-4xl">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white space-y-2 leading-tight">
+            <span className="block">Crafting</span>
+            <span className="block">narrative</span>
+            <span className="block text-gray-300">through</span>
+            <span className="block text-gray-300">design</span>
+          </h1>
+          
+          <p className="mt-6 text-base sm:text-lg text-gray-300 max-w-xl">
+            With bold vision design is key to 
+            building meaningful experiences.
+          </p>
+          
+          <div className="mt-12 flex space-x-4">
+            <a
+              href="#portfolio"
+              className="px-6 py-3 bg-white text-secondary rounded-full text-sm font-medium hover:bg-gray-100 transition-colors"
             >
-              <div className="flex items-center justify-center">
-                <span className="text-2xl sm:text-3xl font-bold text-primary">{stat.number}</span>
-                <span className="text-2xl sm:text-3xl font-bold text-primary">{stat.suffix}</span>
-              </div>
-              <div className="mt-2 text-xs sm:text-sm text-secondary/60">{stat.label}</div>
-            </div>
-          ))}
-        </div>
-        
-        {/* Added decorative element */}
-        {!isMobile && (
-          <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 w-full max-w-7xl">
-            <div className="h-px w-full bg-gradient-to-r from-transparent via-primary/20 to-transparent"></div>
+              SEE OUR PORTFOLIO
+            </a>
           </div>
-        )}
+          
+          {/* Portfolio preview images */}
+          <div className="mt-24 md:mt-32 flex space-x-3 items-center">
+            <div className="w-24 h-16 overflow-hidden rounded-md">
+              <img 
+                src="/lovable-uploads/d479c761-6b78-46a8-a365-dfc9dce9145c.png" 
+                alt="Portfolio preview 1" 
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="w-24 h-16 overflow-hidden rounded-md">
+              <img 
+                src="/lovable-uploads/d479c761-6b78-46a8-a365-dfc9dce9145c.png" 
+                alt="Portfolio preview 2" 
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="w-24 h-16 overflow-hidden rounded-md">
+              <img 
+                src="/lovable-uploads/d479c761-6b78-46a8-a365-dfc9dce9145c.png" 
+                alt="Portfolio preview 3" 
+                className="w-full h-full object-cover"
+              />
+            </div>
+            
+            <div className="ml-auto flex items-center space-x-2">
+              <span className="text-white text-sm font-medium">SCROLL NOW</span>
+              <div className="w-10 h-10 rounded-full border border-white/50 flex items-center justify-center">
+                <ArrowRight className="w-4 h-4 text-white" />
+              </div>
+            </div>
+          </div>
+          
+          {/* Small circles indicator */}
+          <div className="mt-8 flex space-x-1">
+            {[1, 2, 3, 4].map((_, index) => (
+              <div 
+                key={index} 
+                className={`w-2 h-2 rounded-full ${index === 0 ? 'bg-white' : 'bg-white/50'}`}
+              ></div>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );

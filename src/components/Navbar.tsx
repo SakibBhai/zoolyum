@@ -33,58 +33,56 @@ const Navbar = () => {
   };
 
   const navLinks = [
-    { name: "Home", href: "/" },
-    { name: "About", href: "/#about", section: "about" },
+    { name: "About Us", href: "/#about", section: "about" },
     { name: "Services", href: "/#services", section: "services" },
-    { name: "Portfolio", href: "/#portfolio", section: "portfolio" },
-    { name: "Case Studies", href: "/#case-studies", section: "case-studies" },
-    { name: "Blog", href: "/#blog", section: "blog" },
-    { name: "Contact", href: "/#contact", section: "contact" },
+    { name: "Projects", href: "/#portfolio", section: "portfolio" },
+    { name: "FAQ", href: "/#faq", section: "faq" },
   ];
 
   return (
     <nav
-      className={`fixed w-full z-50 transition-all duration-300 ${
-        isScrolled ? "py-3 glass shadow-lg" : "py-4 bg-transparent"
+      className={`fixed w-full z-50 transition-all duration-300 py-6 ${
+        isScrolled ? "bg-secondary/90 backdrop-blur-md" : "bg-transparent"
       }`}
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between">
-          <Link to="/" className="flex items-center">
-            <img 
-              src="/lovable-uploads/d8065ca3-8770-4547-bd54-2883754725d0.png" 
-              alt="Zoolyum Logo" 
-              className="h-10 md:h-12"
-            />
+          <Link to="/" className="text-white text-xl font-bold">
+            Zoolyum
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6">
-            {navLinks.map((link) => (
-              link.section ? (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  onClick={(e) => {
-                    if (isHomePage) {
-                      e.preventDefault();
-                      scrollToSection(link.section!);
-                    }
-                  }}
-                  className="text-secondary hover:text-primary transition-colors duration-300"
-                >
-                  {link.name}
-                </a>
-              ) : (
-                <Link
-                  key={link.name}
-                  to={link.href}
-                  className="text-secondary hover:text-primary transition-colors duration-300"
-                >
-                  {link.name}
-                </Link>
-              )
-            ))}
+          <div className="hidden md:flex items-center space-x-8">
+            <div className="flex items-center space-x-6">
+              {navLinks.map((link) => (
+                link.section ? (
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    onClick={(e) => {
+                      if (isHomePage) {
+                        e.preventDefault();
+                        scrollToSection(link.section!);
+                      }
+                    }}
+                    className="text-white/80 hover:text-white text-sm transition-colors duration-300"
+                  >
+                    {link.name}
+                  </a>
+                ) : (
+                  <Link
+                    key={link.name}
+                    to={link.href}
+                    className="text-white/80 hover:text-white text-sm transition-colors duration-300"
+                  >
+                    {link.name}
+                  </Link>
+                )
+              ))}
+            </div>
+
+            <div className="h-5 w-px bg-white/20"></div>
+
             <a
               href="/#contact"
               onClick={(e) => {
@@ -93,16 +91,17 @@ const Navbar = () => {
                   scrollToSection('contact');
                 }
               }}
-              className="px-6 py-2 bg-primary text-white rounded-full hover:bg-primary-hover transition-colors duration-300"
+              className="text-white/80 hover:text-white text-sm transition-colors duration-300 flex items-center"
             >
-              Get Started
+              CONTACT US
+              <span className="ml-1">↗</span>
             </a>
           </div>
 
           {/* Mobile Navigation Toggle */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden text-secondary hover:text-primary transition-colors"
+            className="md:hidden text-white hover:text-white/80 transition-colors"
           >
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -110,7 +109,7 @@ const Navbar = () => {
 
         {/* Mobile Navigation Menu */}
         {isOpen && (
-          <div className="md:hidden mt-4 pb-4">
+          <div className="md:hidden mt-4 pb-4 bg-secondary/95 backdrop-blur-md absolute top-full left-0 right-0 p-4">
             {navLinks.map((link) => (
               link.section ? (
                 <a
@@ -120,7 +119,7 @@ const Navbar = () => {
                     e.preventDefault();
                     scrollToSection(link.section!);
                   }}
-                  className="block py-2 text-secondary hover:text-primary transition-colors duration-300"
+                  className="block py-2 text-white/80 hover:text-white text-sm transition-colors duration-300"
                 >
                   {link.name}
                 </a>
@@ -128,7 +127,7 @@ const Navbar = () => {
                 <Link
                   key={link.name}
                   to={link.href}
-                  className="block py-2 text-secondary hover:text-primary transition-colors duration-300"
+                  className="block py-2 text-white/80 hover:text-white text-sm transition-colors duration-300"
                   onClick={() => setIsOpen(false)}
                 >
                   {link.name}
@@ -142,9 +141,9 @@ const Navbar = () => {
                 scrollToSection('contact');
                 setIsOpen(false);
               }}
-              className="block mt-4 px-6 py-2 bg-primary text-white text-center rounded-full hover:bg-primary-hover transition-colors duration-300"
+              className="block py-2 text-white/80 hover:text-white text-sm transition-colors duration-300"
             >
-              Get Started
+              CONTACT US
             </a>
           </div>
         )}

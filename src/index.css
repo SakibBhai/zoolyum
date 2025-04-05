@@ -80,6 +80,15 @@
     transition: all 0.3s ease;
   }
   
+  /* Dark glass effect */
+  .dark-glass {
+    background: rgba(30, 41, 59, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+  }
+  
   /* New animations */
   @keyframes float {
     0% { transform: translateY(0px); }
@@ -113,5 +122,14 @@
   
   .hover-lift:hover {
     transform: translateY(-5px);
+  }
+  
+  /* New gradient backgrounds */
+  .bg-gradient-main {
+    background: linear-gradient(135deg, #1E293B 0%, #FF5001 200%);
+  }
+  
+  .bg-gradient-subtle {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(255, 80, 1, 0.3) 200%);
   }
 }

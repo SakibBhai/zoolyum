@@ -61,6 +61,10 @@ export default {
         "fade-up": "fade-up 0.5s ease-out",
         "fade-in": "fade-in 0.3s ease-out",
       },
+      backgroundImage: {
+        'hero-gradient': 'linear-gradient(135deg, #1E293B 0%, #FF5001 200%)',
+        'hero-gradient-light': 'linear-gradient(135deg, #F8FAFC 0%, #FFF1EB 100%)',
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],

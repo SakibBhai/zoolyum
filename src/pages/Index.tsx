@@ -76,10 +76,6 @@ const Index = () => {
         <Contact />
       </main>
       <Footer />
-      
-      {/* Decorative elements for the entire page */}
-      <div className="fixed top-0 right-0 w-1/3 h-screen bg-gradient-to-b from-primary/5 to-transparent pointer-events-none opacity-50 z-0"></div>
-      <div className="fixed bottom-0 left-0 w-1/3 h-screen bg-gradient-to-t from-secondary/5 to-transparent pointer-events-none opacity-50 z-0"></div>
     </div>
   );
 };
