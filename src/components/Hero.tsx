@@ -1,6 +1,7 @@
 
 import { ArrowRight } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Hero = () => {
   const statsRef = useRef<HTMLDivElement>(null);
@@ -11,6 +12,7 @@ const Hero = () => {
     awards: 0
   });
   const [hasAnimated, setHasAnimated] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -64,23 +66,25 @@ const Hero = () => {
       id="home"
       className="min-h-screen flex items-center justify-center relative overflow-hidden pt-20 px-4"
     >
-      {/* Animated background shapes */}
+      {/* Enhanced animated background shapes */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
         <div className="absolute top-1/4 left-1/3 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-1/4 right-1/3 w-96 h-96 bg-secondary/5 rounded-full blur-3xl"></div>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-accent/10 rounded-full blur-3xl animate-pulse [animation-delay:2s]"></div>
+        <div className="absolute bottom-1/3 left-1/4 w-48 h-48 bg-primary/5 rounded-full blur-2xl animate-pulse [animation-delay:1.5s]"></div>
+        <div className="absolute top-1/3 right-1/4 w-56 h-56 bg-accent/5 rounded-full blur-2xl animate-pulse [animation-delay:3s]"></div>
       </div>
 
       <div className="container mx-auto text-center relative z-10">
-        <div className="inline-block animate-fade-in mb-4 transition-all hover:scale-105">
+        <div className="inline-block mb-4 transition-all hover:scale-105 animate-fade-in">
           <span className="px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium shadow-sm">
             #BrandingPowerhouse
           </span>
         </div>
         
-        <h1 className="mt-6 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-secondary animate-fade-up tracking-tight">
+        <h1 className="mt-6 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-secondary animate-fade-up tracking-tight leading-tight">
           Transform Your Brand with
-          <span className="text-primary ml-2 relative inline-block">
+          <span className="text-primary relative inline-block ml-2 md:ml-3">
             Zoolyum
             <span className="absolute -bottom-2 left-0 w-full h-1 bg-primary/30 rounded-full"></span>
           </span>
@@ -108,9 +112,10 @@ const Hero = () => {
           </a>
         </div>
 
+        {/* Responsive stats grid */}
         <div 
           ref={statsRef}
-          className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 max-w-4xl mx-auto animate-fade-up [animation-delay:600ms]"
+          className="mt-16 md:mt-20 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 max-w-4xl mx-auto animate-fade-up [animation-delay:600ms]"
         >
           {[
             { number: hasAnimated ? animatedStats.clients : "0", suffix: "+", label: "Happy Clients" },
@@ -120,16 +125,23 @@ const Hero = () => {
           ].map((stat, index) => (
             <div 
               key={index} 
-              className="p-4 rounded-xl glass hover:shadow-md transition-all duration-300 hover:scale-105"
+              className="p-4 rounded-xl glass hover:shadow-md transition-all duration-300 hover:scale-105 hover:bg-white/80"
             >
               <div className="flex items-center justify-center">
-                <span className="text-3xl font-bold text-primary">{stat.number}</span>
-                <span className="text-3xl font-bold text-primary">{stat.suffix}</span>
+                <span className="text-2xl sm:text-3xl font-bold text-primary">{stat.number}</span>
+                <span className="text-2xl sm:text-3xl font-bold text-primary">{stat.suffix}</span>
               </div>
-              <div className="mt-2 text-sm text-secondary/60">{stat.label}</div>
+              <div className="mt-2 text-xs sm:text-sm text-secondary/60">{stat.label}</div>
             </div>
           ))}
         </div>
+        
+        {/* Added decorative element */}
+        {!isMobile && (
+          <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 w-full max-w-7xl">
+            <div className="h-px w-full bg-gradient-to-r from-transparent via-primary/20 to-transparent"></div>
+          </div>
+        )}
       </div>
     </section>
   );

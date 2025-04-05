@@ -1,6 +1,6 @@
 
 import { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import Services from "@/components/Services";
@@ -11,28 +11,44 @@ import CaseStudyPreview from "@/components/CaseStudyPreview";
 import BlogPreview from "@/components/BlogPreview";
 import FAQ from "@/components/FAQ";
 import Footer from "@/components/Footer";
-import { Helmet } from "react-helmet";
 
 const Index = () => {
   useEffect(() => {
+    // Improved scroll animation handler with throttling
+    let scrollTimeout: ReturnType<typeof setTimeout>;
+    
     const handleScroll = () => {
-      const elements = document.querySelectorAll(".fade-up");
-      elements.forEach((element) => {
-        const rect = element.getBoundingClientRect();
-        const isVisible = rect.top <= window.innerHeight * 0.8;
-        if (isVisible) {
-          element.classList.add("visible");
-        }
-      });
+      // Clear the timeout if it's set
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+      
+      // Set a timeout to run the animation check
+      scrollTimeout = setTimeout(() => {
+        const elements = document.querySelectorAll(".fade-up");
+        elements.forEach((element) => {
+          const rect = element.getBoundingClientRect();
+          const isVisible = rect.top <= window.innerHeight * 0.85;
+          if (isVisible) {
+            element.classList.add("visible");
+          }
+        });
+      }, 100); // 100ms throttle
     };
 
     window.addEventListener("scroll", handleScroll);
     handleScroll(); // Initial check
-    return () => window.removeEventListener("scroll", handleScroll);
+    
+    // Run the check again after images might have loaded
+    window.addEventListener("load", handleScroll);
+    
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("load", handleScroll);
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+    };
   }, []);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen relative overflow-hidden">
       <Helmet>
         <title>Zoolyum | Creative Agency for Digital Excellence</title>
         <meta name="description" content="Zoolyum is a full-service creative agency specializing in branding, web design, digital marketing, and content creation to help businesses achieve growth and success." />
@@ -60,6 +76,10 @@ const Index = () => {
         <Contact />
       </main>
       <Footer />
+      
+      {/* Decorative elements for the entire page */}
+      <div className="fixed top-0 right-0 w-1/3 h-screen bg-gradient-to-b from-primary/5 to-transparent pointer-events-none opacity-50 z-0"></div>
+      <div className="fixed bottom-0 left-0 w-1/3 h-screen bg-gradient-to-t from-secondary/5 to-transparent pointer-events-none opacity-50 z-0"></div>
     </div>
   );
 };
