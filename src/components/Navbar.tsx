@@ -62,28 +62,39 @@ const Navbar = () => {
     <nav
       className={`fixed w-full z-50 transition-all duration-500 ${
         isScrolled 
-          ? "py-2 backdrop-blur-lg bg-secondary/70 shadow-lg" 
+          ? "py-2 backdrop-blur-lg bg-white/70 shadow-lg" 
           : "py-4 bg-transparent"
       }`}
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between">
-          {/* Logo with glow effect */}
+          {/* Logo with animation effect */}
           <Link to="/" className="flex items-center relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-primary/50 to-accent/50 rounded-full blur opacity-0 group-hover:opacity-40 transition duration-500"></div>
-            <img 
-              src="/lovable-uploads/949a5bb0-e47a-44f1-a56b-87c108dcf594.png" 
-              alt="Zoolyum Logo" 
-              className="h-10 relative z-10"
-            />
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="relative z-10"
+            >
+              <img 
+                src="/lovable-uploads/eb1bf9f7-df76-422c-a394-06357ddb4d6b.png" 
+                alt="Zoolyum Logo" 
+                className="h-10 relative z-10 animate-pulse"
+              />
+            </motion.div>
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <div className="flex items-center space-x-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="flex items-center space-x-6"
+            >
               {navLinks.slice(0, -1).map((link, index) => (
                 link.section ? (
-                  <a
+                  <motion.a
                     key={link.name}
                     href={link.href}
                     onClick={(e) => {
@@ -92,44 +103,61 @@ const Navbar = () => {
                         scrollToSection(link.section);
                       }
                     }}
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
                     className={`text-sm font-medium relative overflow-hidden group ${
-                      isScrolled ? "text-white" : "text-white"
+                      isScrolled ? "text-secondary" : "text-secondary"
                     }`}
                   >
                     <span className="relative z-10 transition-colors duration-300 group-hover:text-primary">
                       {link.name}
                     </span>
                     <span className="absolute bottom-0 left-0 w-full h-[2px] bg-primary transform scale-x-0 origin-bottom-right transition-transform duration-300 group-hover:scale-x-100 group-hover:origin-bottom-left"></span>
-                  </a>
+                  </motion.a>
                 ) : (
-                  <Link
+                  <motion.div
                     key={link.name}
-                    to={link.href}
-                    className={`text-sm font-medium relative overflow-hidden group ${
-                      isScrolled ? "text-white" : "text-white"
-                    }`}
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
                   >
-                    <span className="relative z-10 transition-colors duration-300 group-hover:text-primary">
-                      {link.name}
-                    </span>
-                    <span className="absolute bottom-0 left-0 w-full h-[2px] bg-primary transform scale-x-0 origin-bottom-right transition-transform duration-300 group-hover:scale-x-100 group-hover:origin-bottom-left"></span>
-                  </Link>
+                    <Link
+                      to={link.href}
+                      className={`text-sm font-medium relative overflow-hidden group ${
+                        isScrolled ? "text-secondary" : "text-secondary"
+                      }`}
+                    >
+                      <span className="relative z-10 transition-colors duration-300 group-hover:text-primary">
+                        {link.name}
+                      </span>
+                      <span className="absolute bottom-0 left-0 w-full h-[2px] bg-primary transform scale-x-0 origin-bottom-right transition-transform duration-300 group-hover:scale-x-100 group-hover:origin-bottom-left"></span>
+                    </Link>
+                  </motion.div>
                 )
               ))}
-            </div>
+            </motion.div>
 
-            <Button 
-              onClick={() => scrollToSection('contact')}
-              className="bg-white/10 hover:bg-white/20 text-white rounded-full px-6 backdrop-blur-sm border border-white/20 hover:border-primary/50 transition-all duration-300 shadow-[0_0_10px_rgba(255,80,1,0.2)]"
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              whileHover={{ scale: 1.05 }}
             >
-              Get Started
-            </Button>
+              <Button 
+                onClick={() => scrollToSection('contact')}
+                className="bg-primary hover:bg-primary-hover text-white rounded-full px-6 shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                Get Started
+              </Button>
+            </motion.div>
           </div>
 
           {/* Mobile Navigation Toggle with animation */}
-          <button
+          <motion.button
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
             onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden text-white hover:text-primary transition-colors relative z-30"
+            className="md:hidden text-secondary hover:text-primary transition-colors relative z-30"
             aria-label={isOpen ? "Close menu" : "Open menu"}
           >
             <div className="relative w-6 h-6">
@@ -159,7 +187,7 @@ const Navbar = () => {
                 )}
               </AnimatePresence>
             </div>
-          </button>
+          </motion.button>
         </div>
 
         {/* Mobile Navigation Menu with animation */}
@@ -170,7 +198,7 @@ const Navbar = () => {
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3 }}
-              className="md:hidden fixed inset-0 top-16 z-20 bg-black/90 backdrop-blur-xl flex flex-col p-6"
+              className="md:hidden fixed inset-0 top-16 z-20 bg-white/95 backdrop-blur-xl flex flex-col p-6 shadow-xl"
             >
               <div className="flex flex-col space-y-4 mt-4">
                 {navLinks.map((link, index) => (
@@ -187,14 +215,14 @@ const Navbar = () => {
                           e.preventDefault();
                           scrollToSection(link.section!);
                         }}
-                        className="block py-3 text-gray-100 hover:text-primary text-lg font-medium border-b border-gray-800 transition-colors duration-200"
+                        className="block py-3 text-secondary hover:text-primary text-lg font-medium border-b border-gray-200 transition-colors duration-200"
                       >
                         {link.name}
                       </a>
                     ) : (
                       <Link
                         to={link.href}
-                        className="block py-3 text-gray-100 hover:text-primary text-lg font-medium border-b border-gray-800 transition-colors duration-200"
+                        className="block py-3 text-secondary hover:text-primary text-lg font-medium border-b border-gray-200 transition-colors duration-200"
                         onClick={() => setIsOpen(false)}
                       >
                         {link.name}

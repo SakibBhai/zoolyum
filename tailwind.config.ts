@@ -72,7 +72,19 @@ export default {
         "text-shimmer": {
           "0%": { backgroundPosition: "0% 50%" },
           "100%": { backgroundPosition: "100% 50%" },
-        }
+        },
+        bounce: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-15px)" },
+        },
+        spin: {
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(360deg)" },
+        },
+        "zoom-in": {
+          "0%": { transform: "scale(0.9)", opacity: "0" },
+          "100%": { transform: "scale(1)", opacity: "1" },
+        },
       },
       animation: {
         "fade-up": "fade-up 0.5s ease-out",
@@ -80,12 +92,14 @@ export default {
         "float": "float 6s ease-in-out infinite",
         "pulse": "pulse 3s ease-in-out infinite",
         "shimmer": "shimmer 2s linear infinite",
-        "text-shimmer": "text-shimmer 3s ease-in-out infinite"
+        "text-shimmer": "text-shimmer 3s ease-in-out infinite",
+        "bounce": "bounce 3s ease-in-out infinite",
+        "spin": "spin 10s linear infinite",
+        "zoom-in": "zoom-in 0.4s ease-out",
       },
       backgroundImage: {
-        'hero-gradient': 'linear-gradient(135deg, #1E293B 0%, #FF5001 200%)',
         'hero-gradient-light': 'linear-gradient(135deg, #FFF5F1 0%, #FFF 100%)',
-        'grid-white': 'linear-gradient(to right, rgba(255, 255, 255, 0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px)',
+        'grid-light': 'linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px)',
       },
     },
   },

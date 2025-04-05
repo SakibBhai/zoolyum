@@ -71,14 +71,14 @@
     transform: translateY(0);
   }
   
-  /* Enhanced glass effect */
+  /* Enhanced glass effect for light theme */
   .glass {
-    @apply bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg;
+    @apply bg-white/80 backdrop-blur-lg border border-black/5 shadow-lg;
   }
   
-  /* Dark glass effect */
-  .dark-glass {
-    @apply bg-secondary/70 backdrop-blur-lg border border-white/10 shadow-lg;
+  /* Light glass effect */
+  .light-glass {
+    @apply bg-white/60 backdrop-blur-lg border border-black/10 shadow-lg;
   }
   
   /* Text gradient */
@@ -110,7 +110,7 @@
   }
   
   .btn-hover-slide::after {
-    @apply content-[''] absolute inset-0 bg-white/10 -translate-x-full transition-transform duration-300 ease-out;
+    @apply content-[''] absolute inset-0 bg-black/5 -translate-x-full transition-transform duration-300 ease-out;
   }
   
   .btn-hover-slide:hover::after {
@@ -123,6 +123,40 @@
   }
   
   .shimmer::before {
-    @apply content-[''] absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-shimmer;
+    @apply content-[''] absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full animate-shimmer;
+  }
+  
+  /* New animation classes */
+  .zoom-hover {
+    @apply transition-all duration-300 hover:scale-105;
+  }
+  
+  .rotate-hover {
+    @apply transition-all duration-500 hover:rotate-3;
+  }
+  
+  .pulse-shadow {
+    animation: pulse-shadow 3s infinite;
+  }
+  
+  @keyframes pulse-shadow {
+    0%, 100% {
+      box-shadow: 0 0 15px rgba(255, 80, 1, 0.2);
+    }
+    50% {
+      box-shadow: 0 0 30px rgba(255, 80, 1, 0.4);
+    }
+  }
+  
+  .shake-hover:hover {
+    animation: shake 0.5s ease-in-out;
+  }
+  
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-5px); }
+    40% { transform: translateX(5px); }
+    60% { transform: translateX(-3px); }
+    80% { transform: translateX(3px); }
   }
 }

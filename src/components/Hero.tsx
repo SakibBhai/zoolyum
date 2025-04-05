@@ -3,6 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { motion } from "framer-motion";
 
 const Hero = () => {
   const statsRef = useRef<HTMLDivElement>(null);
@@ -64,83 +65,139 @@ const Hero = () => {
 
   // Floating animation for decorative elements
   const shapes = [
-    { size: "h-16 w-16", color: "bg-primary/10", delay: "delay-100", top: "top-[20%]", left: "left-[10%]" },
-    { size: "h-12 w-12", color: "bg-accent/10", delay: "delay-300", top: "top-[70%]", left: "left-[15%]" },
-    { size: "h-20 w-20", color: "bg-secondary/10", delay: "delay-200", top: "top-[30%]", left: "left-[85%]" },
-    { size: "h-14 w-14", color: "bg-primary/10", delay: "delay-400", top: "top-[60%]", left: "left-[80%]" },
+    { size: "h-16 w-16", color: "bg-primary/10", delay: "delay-100", top: "top-[20%]", left: "left-[10%]", animation: "animate-float" },
+    { size: "h-12 w-12", color: "bg-accent/10", delay: "delay-300", top: "top-[70%]", left: "left-[15%]", animation: "animate-bounce" },
+    { size: "h-20 w-20", color: "bg-secondary/10", delay: "delay-200", top: "top-[30%]", left: "left-[85%]", animation: "animate-spin" },
+    { size: "h-14 w-14", color: "bg-primary/10", delay: "delay-400", top: "top-[60%]", left: "left-[80%]", animation: "animate-pulse" },
   ];
+  
+  // Animation variants for staggered animations
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        delayChildren: 0.3,
+        staggerChildren: 0.2
+      }
+    }
+  };
+  
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: { duration: 0.5 }
+    }
+  };
   
   return (
     <section
       id="home"
       className="min-h-screen flex items-center relative overflow-hidden pt-32"
       style={{
-        background: "linear-gradient(135deg, #1E293B 0%, #2A3D53 100%)",
+        background: "linear-gradient(135deg, #FFF5F1 0%, #FFFFFF 100%)",
       }}
     >
-      {/* Decorative floating elements */}
+      {/* Decorative floating elements with various animations */}
       {shapes.map((shape, index) => (
-        <div 
+        <motion.div 
           key={index}
-          className={`absolute rounded-full ${shape.size} ${shape.color} ${shape.top} ${shape.left} animate-float blur-xl ${shape.delay} opacity-50 hidden md:block`}
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ opacity: 0.6, scale: 1 }}
+          transition={{ delay: index * 0.2, duration: 0.5 }}
+          className={`absolute rounded-full ${shape.size} ${shape.color} ${shape.top} ${shape.left} ${shape.animation} blur-xl ${shape.delay} opacity-60 hidden md:block`}
         />
       ))}
       
-      {/* Grid overlay for futuristic effect */}
-      <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:50px_50px] opacity-20"></div>
+      {/* Grid overlay for futuristic effect - made more visible and with light color scheme */}
+      <div className="absolute inset-0 bg-grid-light bg-[size:40px_40px] opacity-30"></div>
       
       <div className="container mx-auto px-4 relative z-10">
-        <div className="text-center max-w-4xl mx-auto">
+        <motion.div 
+          className="text-center max-w-4xl mx-auto"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
           {/* Tag */}
-          <div className="inline-block px-4 py-2 rounded-full bg-gradient-to-r from-primary/20 to-primary/10 backdrop-blur-sm text-white text-sm font-medium mb-8 animate-pulse">
+          <motion.div 
+            variants={itemVariants}
+            className="inline-block px-4 py-2 rounded-full bg-gradient-to-r from-primary/20 to-primary/10 backdrop-blur-sm text-secondary text-sm font-medium mb-8 animate-pulse"
+          >
             #BrandingPowerhouse
-          </div>
+          </motion.div>
           
-          {/* Hero Title with glow effect */}
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 animate-fade-in [text-shadow:0_0_30px_rgba(255,80,1,0.3)]">
-            Transform Your Brand with <span className="text-gradient bg-gradient-to-r from-primary to-accent inline-block">Zoolyum</span>
-          </h1>
+          {/* Hero Title with animated gradient effect */}
+          <motion.h1 
+            variants={itemVariants}
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-secondary mb-6 animate-fade-in"
+          >
+            Transform Your Brand with <span className="text-gradient bg-gradient-to-r from-primary to-accent inline-block animate-text-shimmer bg-[size:200%_auto]">Zoolyum</span>
+          </motion.h1>
           
           {/* Hero Description with glass effect */}
-          <div className="backdrop-blur-sm bg-white/5 rounded-xl p-6 mb-10 max-w-3xl mx-auto border border-white/10 shadow-[0_0_15px_rgba(255,80,1,0.1)]">
-            <p className="text-gray-300 text-lg sm:text-xl">
+          <motion.div 
+            variants={itemVariants}
+            className="backdrop-blur-sm bg-white/60 rounded-xl p-6 mb-10 max-w-3xl mx-auto border border-black/5 shadow-xl hover:shadow-2xl transition-all duration-500"
+          >
+            <p className="text-secondary text-lg sm:text-xl">
               We craft compelling brand experiences that captivate audiences and drive growth. 
               Your vision, our expertise – together we'll create something extraordinary.
             </p>
-          </div>
+          </motion.div>
           
           {/* CTA Buttons with enhanced hover effects */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20">
-            <Button 
-              className="bg-gradient-to-r from-primary to-primary-hover hover:from-primary-hover hover:to-primary text-white rounded-full px-8 py-6 text-base group transition-all duration-300 shadow-[0_0_15px_rgba(255,80,1,0.5)]"
-              onClick={() => {
-                const element = document.getElementById('contact');
-                if (element) {
-                  element.scrollIntoView({ behavior: "smooth" });
-                }
-              }}
+          <motion.div 
+            variants={itemVariants}
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20"
+          >
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 400, damping: 10 }}
             >
-              Get Started <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-            </Button>
+              <Button 
+                className="bg-gradient-to-r from-primary to-primary-hover hover:from-primary-hover hover:to-primary text-white rounded-full px-8 py-6 text-base group transition-all duration-300 shadow-lg hover:shadow-xl"
+                onClick={() => {
+                  const element = document.getElementById('contact');
+                  if (element) {
+                    element.scrollIntoView({ behavior: "smooth" });
+                  }
+                }}
+              >
+                Get Started <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </motion.div>
             
-            <Button 
-              variant="outline" 
-              className="border border-white/20 text-white hover:bg-white/10 rounded-full px-8 py-6 text-base backdrop-blur-sm transition-all duration-300"
-              onClick={() => {
-                const element = document.getElementById('portfolio');
-                if (element) {
-                  element.scrollIntoView({ behavior: "smooth" });
-                }
-              }}
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 400, damping: 10 }}
             >
-              View Our Work
-            </Button>
-          </div>
+              <Button 
+                variant="outline" 
+                className="border border-secondary/20 text-secondary hover:bg-secondary/5 rounded-full px-8 py-6 text-base backdrop-blur-sm transition-all duration-300"
+                onClick={() => {
+                  const element = document.getElementById('portfolio');
+                  if (element) {
+                    element.scrollIntoView({ behavior: "smooth" });
+                  }
+                }}
+              >
+                View Our Work
+              </Button>
+            </motion.div>
+          </motion.div>
           
-          {/* Stats with enhanced glass effect */}
-          <div 
+          {/* Stats with enhanced glass effect and animations */}
+          <motion.div 
             ref={statsRef} 
             className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-10 text-center"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
           >
             {[
               { value: animatedStats.clients, label: "Happy Clients" },
@@ -148,22 +205,24 @@ const Hero = () => {
               { value: animatedStats.years, label: "Years Experience" },
               { value: animatedStats.awards, label: "Industry Awards" }
             ].map((stat, index) => (
-              <div 
+              <motion.div 
                 key={index}
-                className={`stats-item backdrop-blur-md bg-white/5 rounded-2xl p-6 border border-white/10 hover-lift transition-all duration-300 hover:bg-white/10 ${index % 2 === 0 ? 'lg:translate-y-4' : ''}`}
+                variants={itemVariants}
+                whileHover={{ y: -5, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)" }}
+                className={`stats-item backdrop-blur-md bg-white/70 rounded-2xl p-6 border border-black/5 transition-all duration-300 hover:bg-white/90 ${index % 2 === 0 ? 'lg:translate-y-4' : ''}`}
               >
-                <div className="text-4xl sm:text-5xl font-bold text-primary mb-2 [text-shadow:0_0_10px_rgba(255,80,1,0.5)]">
+                <div className="text-4xl sm:text-5xl font-bold text-primary mb-2">
                   {typeof stat.value === 'number' ? stat.value + '+' : stat.value}
                 </div>
-                <p className="text-gray-300">{stat.label}</p>
-              </div>
+                <p className="text-secondary/80">{stat.label}</p>
+              </motion.div>
             ))}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
       
       {/* Bottom gradient glow */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-primary/20 to-transparent"></div>
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-primary/5 to-transparent"></div>
     </section>
   );
 };
