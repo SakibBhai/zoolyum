@@ -1,7 +1,7 @@
 
 import { ArrowRight } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { Button } from "@/components/ui/button";
 
 const Hero = () => {
   const statsRef = useRef<HTMLDivElement>(null);
@@ -12,7 +12,6 @@ const Hero = () => {
     awards: 0
   });
   const [hasAnimated, setHasAnimated] = useState(false);
-  const isMobile = useIsMobile();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -64,77 +63,78 @@ const Hero = () => {
   return (
     <section
       id="home"
-      className="min-h-screen flex items-center relative overflow-hidden pt-20 px-4"
+      className="min-h-screen flex items-center relative overflow-hidden pt-32"
       style={{
-        background: "linear-gradient(135deg, #1E293B 0%, #FF5001 200%)",
+        background: "linear-gradient(135deg, #FFF5F1 0%, #FFF 100%)",
       }}
     >
-      {/* Subtle gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-black/40 via-transparent to-transparent z-0"></div>
-      
-      <div className="container mx-auto relative z-10 mt-10">
-        <div className="max-w-4xl">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white space-y-2 leading-tight">
-            <span className="block">Crafting</span>
-            <span className="block">narrative</span>
-            <span className="block text-gray-300">through</span>
-            <span className="block text-gray-300">design</span>
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="text-center max-w-4xl mx-auto">
+          {/* Tag */}
+          <div className="inline-block px-4 py-2 rounded-full bg-orange-100 text-primary text-sm font-medium mb-8">
+            #BrandingPowerhouse
+          </div>
+          
+          {/* Hero Title */}
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-secondary mb-6">
+            Transform Your Brand with <span className="text-primary">Zoolyum</span>
           </h1>
           
-          <p className="mt-6 text-base sm:text-lg text-gray-300 max-w-xl">
-            With bold vision design is key to 
-            building meaningful experiences.
+          {/* Hero Description */}
+          <p className="text-gray-600 text-lg sm:text-xl mb-10 max-w-3xl mx-auto">
+            We craft compelling brand experiences that captivate audiences and drive growth. 
+            Your vision, our expertise – together we'll create something extraordinary.
           </p>
           
-          <div className="mt-12 flex space-x-4">
-            <a
-              href="#portfolio"
-              className="px-6 py-3 bg-white text-secondary rounded-full text-sm font-medium hover:bg-gray-100 transition-colors"
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20">
+            <Button 
+              className="bg-primary hover:bg-primary-hover text-white rounded-full px-8 py-6 text-base"
+              onClick={() => {
+                const element = document.getElementById('contact');
+                if (element) {
+                  element.scrollIntoView({ behavior: "smooth" });
+                }
+              }}
             >
-              SEE OUR PORTFOLIO
-            </a>
-          </div>
-          
-          {/* Portfolio preview images */}
-          <div className="mt-24 md:mt-32 flex space-x-3 items-center">
-            <div className="w-24 h-16 overflow-hidden rounded-md">
-              <img 
-                src="/lovable-uploads/d479c761-6b78-46a8-a365-dfc9dce9145c.png" 
-                alt="Portfolio preview 1" 
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="w-24 h-16 overflow-hidden rounded-md">
-              <img 
-                src="/lovable-uploads/d479c761-6b78-46a8-a365-dfc9dce9145c.png" 
-                alt="Portfolio preview 2" 
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="w-24 h-16 overflow-hidden rounded-md">
-              <img 
-                src="/lovable-uploads/d479c761-6b78-46a8-a365-dfc9dce9145c.png" 
-                alt="Portfolio preview 3" 
-                className="w-full h-full object-cover"
-              />
-            </div>
+              Get Started <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
             
-            <div className="ml-auto flex items-center space-x-2">
-              <span className="text-white text-sm font-medium">SCROLL NOW</span>
-              <div className="w-10 h-10 rounded-full border border-white/50 flex items-center justify-center">
-                <ArrowRight className="w-4 h-4 text-white" />
-              </div>
-            </div>
+            <Button 
+              variant="outline" 
+              className="border-gray-300 text-secondary hover:bg-gray-100 rounded-full px-8 py-6 text-base"
+              onClick={() => {
+                const element = document.getElementById('portfolio');
+                if (element) {
+                  element.scrollIntoView({ behavior: "smooth" });
+                }
+              }}
+            >
+              View Our Work
+            </Button>
           </div>
           
-          {/* Small circles indicator */}
-          <div className="mt-8 flex space-x-1">
-            {[1, 2, 3, 4].map((_, index) => (
-              <div 
-                key={index} 
-                className={`w-2 h-2 rounded-full ${index === 0 ? 'bg-white' : 'bg-white/50'}`}
-              ></div>
-            ))}
+          {/* Stats */}
+          <div 
+            ref={statsRef} 
+            className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-10 text-center"
+          >
+            <div className="stats-item">
+              <div className="text-4xl sm:text-5xl font-bold text-primary mb-2">{animatedStats.clients}+</div>
+              <p className="text-gray-600">Happy Clients</p>
+            </div>
+            <div className="stats-item">
+              <div className="text-4xl sm:text-5xl font-bold text-primary mb-2">{animatedStats.projects}+</div>
+              <p className="text-gray-600">Projects Completed</p>
+            </div>
+            <div className="stats-item">
+              <div className="text-4xl sm:text-5xl font-bold text-primary mb-2">{animatedStats.years}+</div>
+              <p className="text-gray-600">Years Experience</p>
+            </div>
+            <div className="stats-item">
+              <div className="text-4xl sm:text-5xl font-bold text-primary mb-2">{animatedStats.awards}+</div>
+              <p className="text-gray-600">Industry Awards</p>
+            </div>
           </div>
         </div>
       </div>

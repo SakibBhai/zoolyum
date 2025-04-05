@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -33,39 +34,48 @@ const Navbar = () => {
   };
 
   const navLinks = [
-    { name: "About Us", href: "/#about", section: "about" },
+    { name: "Home", href: "/", section: "" },
+    { name: "About", href: "/#about", section: "about" },
     { name: "Services", href: "/#services", section: "services" },
-    { name: "Projects", href: "/#portfolio", section: "portfolio" },
-    { name: "FAQ", href: "/#faq", section: "faq" },
+    { name: "Portfolio", href: "/#portfolio", section: "portfolio" },
+    { name: "Case Studies", href: "/case-study", section: "" },
+    { name: "Blog", href: "/blog", section: "" },
+    { name: "Contact", href: "/#contact", section: "contact" },
   ];
 
   return (
     <nav
-      className={`fixed w-full z-50 transition-all duration-300 py-6 ${
-        isScrolled ? "bg-secondary/90 backdrop-blur-md" : "bg-transparent"
+      className={`fixed w-full z-50 transition-all duration-300 ${
+        isScrolled ? "py-4 bg-white shadow-sm" : "py-6 bg-transparent"
       }`}
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between">
-          <Link to="/" className="text-white text-xl font-bold">
-            Zoolyum
+          <Link to="/" className="flex items-center">
+            <img 
+              src="/lovable-uploads/949a5bb0-e47a-44f1-a56b-87c108dcf594.png" 
+              alt="Zoolyum Logo" 
+              className="h-10"
+            />
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             <div className="flex items-center space-x-6">
-              {navLinks.map((link) => (
+              {navLinks.slice(0, -1).map((link) => (
                 link.section ? (
                   <a
                     key={link.name}
                     href={link.href}
                     onClick={(e) => {
-                      if (isHomePage) {
+                      if (isHomePage && link.section) {
                         e.preventDefault();
-                        scrollToSection(link.section!);
+                        scrollToSection(link.section);
                       }
                     }}
-                    className="text-white/80 hover:text-white text-sm transition-colors duration-300"
+                    className={`text-sm font-medium transition-colors duration-200 ${
+                      isScrolled ? "text-gray-700 hover:text-primary" : "text-gray-700 hover:text-primary"
+                    }`}
                   >
                     {link.name}
                   </a>
@@ -73,7 +83,9 @@ const Navbar = () => {
                   <Link
                     key={link.name}
                     to={link.href}
-                    className="text-white/80 hover:text-white text-sm transition-colors duration-300"
+                    className={`text-sm font-medium transition-colors duration-200 ${
+                      isScrolled ? "text-gray-700 hover:text-primary" : "text-gray-700 hover:text-primary"
+                    }`}
                   >
                     {link.name}
                   </Link>
@@ -81,27 +93,18 @@ const Navbar = () => {
               ))}
             </div>
 
-            <div className="h-5 w-px bg-white/20"></div>
-
-            <a
-              href="/#contact"
-              onClick={(e) => {
-                if (isHomePage) {
-                  e.preventDefault();
-                  scrollToSection('contact');
-                }
-              }}
-              className="text-white/80 hover:text-white text-sm transition-colors duration-300 flex items-center"
+            <Button 
+              onClick={() => scrollToSection('contact')}
+              className="bg-primary hover:bg-primary-hover text-white rounded-full px-6"
             >
-              CONTACT US
-              <span className="ml-1">↗</span>
-            </a>
+              Get Started
+            </Button>
           </div>
 
           {/* Mobile Navigation Toggle */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden text-white hover:text-white/80 transition-colors"
+            className="md:hidden text-gray-800 hover:text-primary transition-colors"
           >
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -109,7 +112,7 @@ const Navbar = () => {
 
         {/* Mobile Navigation Menu */}
         {isOpen && (
-          <div className="md:hidden mt-4 pb-4 bg-secondary/95 backdrop-blur-md absolute top-full left-0 right-0 p-4">
+          <div className="md:hidden mt-4 pb-4 bg-white absolute top-full left-0 right-0 p-4 shadow-md">
             {navLinks.map((link) => (
               link.section ? (
                 <a
@@ -119,7 +122,7 @@ const Navbar = () => {
                     e.preventDefault();
                     scrollToSection(link.section!);
                   }}
-                  className="block py-2 text-white/80 hover:text-white text-sm transition-colors duration-300"
+                  className="block py-2 text-gray-700 hover:text-primary text-sm transition-colors duration-200"
                 >
                   {link.name}
                 </a>
@@ -127,24 +130,24 @@ const Navbar = () => {
                 <Link
                   key={link.name}
                   to={link.href}
-                  className="block py-2 text-white/80 hover:text-white text-sm transition-colors duration-300"
+                  className="block py-2 text-gray-700 hover:text-primary text-sm transition-colors duration-200"
                   onClick={() => setIsOpen(false)}
                 >
                   {link.name}
                 </Link>
               )
             ))}
-            <a
-              href="/#contact"
-              onClick={(e) => {
-                e.preventDefault();
-                scrollToSection('contact');
-                setIsOpen(false);
-              }}
-              className="block py-2 text-white/80 hover:text-white text-sm transition-colors duration-300"
-            >
-              CONTACT US
-            </a>
+            <div className="mt-4">
+              <Button 
+                onClick={() => {
+                  scrollToSection('contact');
+                  setIsOpen(false);
+                }}
+                className="bg-primary hover:bg-primary-hover text-white w-full rounded-full"
+              >
+                Get Started
+              </Button>
+            </div>
           </div>
         )}
       </div>
