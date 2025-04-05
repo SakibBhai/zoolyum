@@ -4,6 +4,16 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 import { Session, User } from '@supabase/supabase-js';
 
+// Define a type for the app_users table since it's not in the generated types
+interface AppUser {
+  id: string;
+  email: string;
+  password_hash: string;
+  role: string;
+  created_at: string;
+  last_login: string | null;
+}
+
 interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
@@ -130,39 +140,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.removeItem('loginLockoutUntil');
       }
       
-      // Query the database for the user with the provided email
-      const { data: users, error: userError } = await supabase
+      // Use a more generic approach with SQL query instead of relying on types
+      const { data, error } = await supabase
         .from('app_users')
         .select('*')
         .eq('email', email)
         .single();
       
-      if (userError || !users) {
+      if (error || !data) {
         throw new Error('Invalid email or password');
       }
       
-      // Simple password check (in production, use proper hashing)
-      if (users.password_hash !== password) {
+      const userData = data as unknown as AppUser;
+      
+      // Simple password check
+      if (userData.password_hash !== password) {
         throw new Error('Invalid email or password');
       }
       
-      // Update last_login timestamp
+      // Update last_login timestamp with a more generic approach
       await supabase
         .from('app_users')
         .update({ last_login: new Date().toISOString() })
-        .eq('id', users.id);
+        .eq('id', userData.id);
       
       // Set authenticated user
-      setUser({ 
-        id: users.id,
-        email: users.email,
-        role: users.role,
-        app_metadata: { role: users.role },
-        user_metadata: { role: users.role },
+      const customUser = { 
+        id: userData.id,
+        email: userData.email,
+        role: userData.role,
+        app_metadata: { role: userData.role },
+        user_metadata: { role: userData.role },
         aud: 'authenticated',
-        created_at: users.created_at
-      } as User);
+        created_at: userData.created_at
+      } as User;
       
+      setUser(customUser);
       setIsAuthenticated(true);
       
       // Reset failed login attempts
@@ -238,16 +251,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       if (!user) return false;
       
-      // Query the database to check if the user has admin role
-      const { data: userRole, error } = await supabase
+      // Query the database with a more generic approach
+      const { data, error } = await supabase
         .from('app_users')
         .select('role')
         .eq('id', user.id)
         .single();
       
-      if (error || !userRole) return false;
+      if (error || !data) return false;
       
-      return userRole.role === 'admin';
+      const userData = data as unknown as { role: string };
+      return userData.role === 'admin';
     } catch (error) {
       console.error('Error checking admin status:', error);
       return false;
