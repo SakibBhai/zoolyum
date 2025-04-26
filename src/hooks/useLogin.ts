@@ -13,6 +13,8 @@ export const useLogin = (
 
   const login = async (email: string, password: string): Promise<LoginResult> => {
     try {
+      console.log("Login attempt for:", email);
+      
       // Fetch user data and verify credentials
       const { data: userData, error: userError } = await supabase
         .from('app_users')
@@ -20,20 +22,32 @@ export const useLogin = (
         .eq('email', email.toLowerCase().trim())
         .maybeSingle();
 
-      if (userError || !userData) {
+      console.log("User data retrieved:", userData, "Error:", userError);
+      
+      if (userError) {
+        console.error("Database error:", userError);
+        throw new Error('Login failed. Please try again.');
+      }
+      
+      if (!userData) {
+        console.log("No user found with email:", email);
         throw new Error('Invalid email or password');
       }
 
-      // Verify password
+      // Verify password - direct comparison for simplicity
       if (userData.password_hash !== password) {
+        console.log("Password mismatch for user:", email);
         throw new Error('Invalid email or password');
       }
 
       // Check if user is an admin
       if (userData.role !== 'admin') {
+        console.log("User is not an admin:", email, "Role:", userData.role);
         throw new Error('Access denied. Admin privileges required.');
       }
 
+      console.log("Login successful for admin:", email);
+      
       // Update last login timestamp
       await supabase
         .from('app_users')
