@@ -1,7 +1,7 @@
 
 import { Helmet } from "react-helmet";
 import Navbar from "@/components/Navbar";
-import CaseStudyPreview from "@/components/CaseStudyPreview";
+import CaseStudy from "./CaseStudy";
 import Footer from "@/components/Footer";
 
 const CaseStudiesPage = () => {
@@ -13,7 +13,7 @@ const CaseStudiesPage = () => {
       </Helmet>
       <Navbar />
       <main>
-        <CaseStudyPreview />
+        <CaseStudy />
       </main>
       <Footer />
     </div>
