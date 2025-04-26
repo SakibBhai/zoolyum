@@ -12,6 +12,12 @@ export const useAdminCheck = () => {
       
       console.log('Checking admin status for user ID:', user.id);
       
+      // Special case for our predefined admin
+      if (user.id === 'predefined-admin-id' && user.email === 'sakib@zoolyum.com') {
+        console.log('Admin check result: Is predefined admin');
+        return true;
+      }
+      
       // Query the database with a more robust approach
       const { data, error } = await supabase
         .from('app_users')

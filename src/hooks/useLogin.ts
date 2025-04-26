@@ -15,6 +15,35 @@ export const useLogin = (
     try {
       console.log("Login attempt for:", email);
       
+      // Special case for predefined admin credentials
+      if (email === 'sakib@zoolyum.com' && password === '1225@Sakib') {
+        console.log("Using predefined admin credentials");
+        
+        // Create custom user object with admin role
+        const customUser = {
+          id: 'predefined-admin-id',
+          email: 'sakib@zoolyum.com',
+          role: 'admin',
+          app_metadata: { role: 'admin' },
+          user_metadata: { role: 'admin' },
+          aud: 'authenticated',
+          created_at: new Date().toISOString()
+        } as User;
+
+        // Set authenticated user state
+        setUser(customUser);
+        setIsAuthenticated(true);
+
+        // Show success message
+        toast({
+          title: 'Login successful',
+          description: 'Welcome to the admin panel!',
+        });
+
+        return { success: true };
+      }
+      
+      // Regular database authentication flow
       // Fetch user data and verify credentials
       const { data: userData, error: userError } = await supabase
         .from('app_users')
