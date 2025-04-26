@@ -1,10 +1,8 @@
-
 import { useEffect } from "react";
 import { Helmet } from "react-helmet";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import Services from "@/components/Services";
-import About from "@/components/About";
 import Contact from "@/components/Contact";
 import PortfolioPreview from "@/components/PortfolioPreview";
 import CaseStudyPreview from "@/components/CaseStudyPreview";
@@ -68,7 +66,6 @@ const Index = () => {
       <main>
         <Hero />
         <Services />
-        <About />
         <PortfolioPreview />
         <CaseStudyPreview />
         <BlogPreview />

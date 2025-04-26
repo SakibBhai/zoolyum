@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -52,7 +51,6 @@ const Navbar = () => {
 
   const navLinks = [
     { name: "Home", href: "/", section: "" },
-    { name: "About", href: "/#about", section: "about" },
     { name: "Services", href: "/#services", section: "services" },
     { name: "Portfolio", href: "/#portfolio", section: "portfolio" },
     { name: "Case Studies", href: "/case-study", section: "" },
