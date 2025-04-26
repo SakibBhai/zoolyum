@@ -35,13 +35,8 @@ const Blog = () => {
           throw error;
         }
         
-        // Process data to mark some posts as featured
-        const processedPosts = data.map((post, index) => ({
-          ...post,
-          featured: index < 2 // Mark the first two posts as featured
-        }));
-        
-        setBlogPosts(processedPosts || []);
+        // Instead of modifying the posts, we'll keep the original data
+        setBlogPosts(data || []);
       } catch (error) {
         console.error('Error fetching blog posts:', error);
       } finally {
@@ -93,8 +88,8 @@ const Blog = () => {
        post.excerpt.toLowerCase().includes(searchTerm.toLowerCase()))
     );
 
-  // Get featured posts
-  const featuredPosts = blogPosts.filter(post => post.featured);
+  // Get featured posts - use the first 2 posts as featured instead of relying on a property
+  const featuredPosts = blogPosts.slice(0, 2);
 
   // Format date for display
   const formatDate = (dateString: string) => {
