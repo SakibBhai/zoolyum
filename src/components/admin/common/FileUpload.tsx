@@ -42,32 +42,42 @@ const FileUpload = ({ onUploadComplete, currentImageUrl, label = "Image" }: File
     setUploadError(null);
 
     try {
-      // Create a unique file name
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
-      
-      // Upload path - store directly in the public folder for easier access
-      const filePath = `public/${fileName}`;
-
       // Check if the user is authenticated before uploading
       if (!isAuthenticated) {
         throw new Error('You must be logged in to upload files');
       }
 
-      // Upload the file to Supabase Storage
+      // Create a unique file name
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
+      
+      // Upload directly to the root of the bucket
+      const filePath = fileName;
+
+      console.log('Starting file upload:', { fileName, filePath, fileType: file.type });
+
+      // Upload the file to Supabase Storage with content type
       const { data, error } = await supabase.storage
         .from('uploads')
         .upload(filePath, file, {
+          contentType: file.type,
           cacheControl: '3600',
           upsert: true
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase storage upload error:', error);
+        throw error;
+      }
+
+      console.log('Upload successful:', data);
 
       // Get the public URL for the uploaded file
-      const { data: { publicUrl } } = supabase.storage.from('uploads').getPublicUrl(filePath);
+      const { data: { publicUrl } } = supabase.storage
+        .from('uploads')
+        .getPublicUrl(filePath);
       
-      console.log("File uploaded successfully:", publicUrl);
+      console.log("File public URL:", publicUrl);
       setPreview(publicUrl);
       onUploadComplete(publicUrl);
       
@@ -77,10 +87,11 @@ const FileUpload = ({ onUploadComplete, currentImageUrl, label = "Image" }: File
       });
     } catch (error) {
       console.error('Error uploading file:', error);
-      setUploadError(`Error uploading file: ${error.message || 'Please try again.'}`);
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      setUploadError(`Error uploading file: ${errorMessage}`);
       toast({
         title: "Upload failed",
-        description: error.message || "An error occurred during upload",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
