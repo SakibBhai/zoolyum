@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,8 +6,11 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
-import Portfolio from "./pages/Portfolio";
-import CaseStudy from "./pages/CaseStudy";
+import AboutPage from "./pages/AboutPage";
+import ServicesPage from "./pages/ServicesPage";
+import PortfolioPage from "./pages/PortfolioPage";
+import CaseStudiesPage from "./pages/CaseStudiesPage";
+import ContactPage from "./pages/ContactPage";
 import Blog from "./pages/Blog";
 import BlogDetail from "./pages/BlogDetail";
 import Admin from "./pages/Admin";
@@ -34,8 +36,11 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
-              <Route path="/portfolio" element={<Portfolio />} />
-              <Route path="/case-study" element={<CaseStudy />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/services" element={<ServicesPage />} />
+              <Route path="/portfolio" element={<PortfolioPage />} />
+              <Route path="/case-studies" element={<CaseStudiesPage />} />
+              <Route path="/contact" element={<ContactPage />} />
               <Route path="/case-study/:id" element={<CaseStudyDetail />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:id" element={<BlogDetail />} />
@@ -45,7 +50,6 @@ const App = () => (
                   <Admin />
                 </ProtectedRoute>
               } />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
