@@ -47,36 +47,38 @@ export const useLogin = (
       // Check for previous failed attempts
       const previousFailedAttempts = getSanitizedLoginAttempts();
       if (previousFailedAttempts >= MAX_LOGIN_ATTEMPTS) {
-        // Reset if lockout period expired
         clearLoginSecurityData();
       }
-      
-      // Use a more generic approach with SQL query instead of relying on types
-      const { data, error } = await supabase
+
+      // Fetch user data and verify credentials
+      const { data: userData, error: userError } = await supabase
         .from('app_users')
         .select('*')
-        .eq('email', email)
-        .single();
-      
-      if (error || !data) {
+        .eq('email', email.toLowerCase().trim())
+        .maybeSingle();
+
+      if (userError || !userData) {
         throw new Error('Invalid email or password');
       }
-      
-      const userData = data as unknown as AppUser;
-      
-      // Simple password check
+
+      // Verify password (in a real app, you'd use proper password hashing)
       if (userData.password_hash !== password) {
         throw new Error('Invalid email or password');
       }
-      
-      // Update last_login timestamp with a more generic approach
+
+      // Check if user is an admin
+      if (userData.role !== 'admin') {
+        throw new Error('Access denied. Admin privileges required.');
+      }
+
+      // Update last login timestamp
       await supabase
         .from('app_users')
         .update({ last_login: new Date().toISOString() })
         .eq('id', userData.id);
-      
-      // Set authenticated user
-      const customUser = { 
+
+      // Create custom user object with admin role
+      const customUser = {
         id: userData.id,
         email: userData.email,
         role: userData.role,
@@ -85,42 +87,44 @@ export const useLogin = (
         aud: 'authenticated',
         created_at: userData.created_at
       } as User;
-      
+
+      // Set authenticated user state
       setUser(customUser);
       setIsAuthenticated(true);
-      
+
       // Reset failed login attempts
       clearLoginSecurityData();
-      
+
+      // Show success message
       toast({
         title: 'Login successful',
         description: 'Welcome to the admin panel!',
       });
-      
+
       return { success: true };
-      
+
     } catch (error: any) {
       console.error('Login error:', error);
-      
-      // Increment failed login attempts with extra validation
+
+      // Increment failed login attempts
       const attempts = incrementFailedLoginAttempts();
-      
-      // Lock account after MAX_LOGIN_ATTEMPTS failed attempts
+
+      // Lock account after max attempts
       if (attempts >= MAX_LOGIN_ATTEMPTS) {
         setAccountLockout(LOCKOUT_DURATION);
-        
         return {
           success: false,
           error: `Too many failed login attempts. Your account has been locked for ${LOCKOUT_DURATION/60000} minutes.`
         };
       }
-      
+
+      // Show error message
       toast({
         title: 'Login failed',
         description: error.message || 'An error occurred during login',
         variant: 'destructive',
       });
-      
+
       return { 
         success: false, 
         error: error.message || 'Login failed' 
