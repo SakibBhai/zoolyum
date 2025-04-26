@@ -46,7 +46,7 @@ const FileUpload = ({ onUploadComplete, currentImageUrl, label = "Image" }: File
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
       
-      // Upload to public folder to simplify access
+      // Upload path - store directly in the public folder for easier access
       const filePath = `public/${fileName}`;
 
       // Check if the user is authenticated before uploading
@@ -58,8 +58,8 @@ const FileUpload = ({ onUploadComplete, currentImageUrl, label = "Image" }: File
       const { data, error } = await supabase.storage
         .from('uploads')
         .upload(filePath, file, {
-          upsert: true,
           cacheControl: '3600',
+          upsert: true
         });
 
       if (error) throw error;
@@ -67,6 +67,7 @@ const FileUpload = ({ onUploadComplete, currentImageUrl, label = "Image" }: File
       // Get the public URL for the uploaded file
       const { data: { publicUrl } } = supabase.storage.from('uploads').getPublicUrl(filePath);
       
+      console.log("File uploaded successfully:", publicUrl);
       setPreview(publicUrl);
       onUploadComplete(publicUrl);
       
