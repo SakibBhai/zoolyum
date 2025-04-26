@@ -16,9 +16,22 @@ export interface BlogPost {
   image: string;
 }
 
+export type SortField = "title" | "date" | "category" | "author";
+export type SortDirection = "asc" | "desc";
+export type FilterOptions = {
+  category?: string;
+  author?: string;
+  searchQuery?: string;
+};
+
 export const useBlogPosts = () => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [sortField, setSortField] = useState<SortField>("date");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  const [filterOptions, setFilterOptions] = useState<FilterOptions>({});
+  const [categories, setCategories] = useState<string[]>([]);
+  const [authors, setAuthors] = useState<string[]>([]);
   const { toast } = useToast();
 
   // Set up realtime subscription
@@ -39,20 +52,45 @@ export const useBlogPosts = () => {
     }
   });
 
-  // Fetch blog posts from Supabase
+  // Fetch blog posts from Supabase with sorting and filtering
   const fetchPosts = async () => {
     try {
       setIsLoading(true);
-      const { data, error } = await supabase
+      let query = supabase
         .from('blog_posts')
         .select('*')
-        .order('date', { ascending: false });
+        .order(sortField, { ascending: sortDirection === 'asc' });
+      
+      // Apply category filter if set
+      if (filterOptions.category) {
+        query = query.eq('category', filterOptions.category);
+      }
+      
+      // Apply author filter if set
+      if (filterOptions.author) {
+        query = query.eq('author', filterOptions.author);
+      }
+      
+      // Apply search query if set
+      if (filterOptions.searchQuery) {
+        query = query.or(`title.ilike.%${filterOptions.searchQuery}%,content.ilike.%${filterOptions.searchQuery}%`);
+      }
+      
+      const { data, error } = await query;
       
       if (error) {
         throw error;
       }
       
       setPosts(data || []);
+      
+      // Extract unique categories and authors for filter dropdowns
+      if (data) {
+        const uniqueCategories = [...new Set(data.map(post => post.category))];
+        const uniqueAuthors = [...new Set(data.map(post => post.author))];
+        setCategories(uniqueCategories);
+        setAuthors(uniqueAuthors);
+      }
     } catch (error) {
       console.error('Error fetching blog posts:', error);
       toast({
@@ -63,6 +101,22 @@ export const useBlogPosts = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Set sort options and refetch
+  const sortPosts = (field: SortField, direction: SortDirection) => {
+    setSortField(field);
+    setSortDirection(direction);
+  };
+
+  // Set filter options and refetch
+  const filterPosts = (options: Partial<FilterOptions>) => {
+    setFilterOptions(prev => ({ ...prev, ...options }));
+  };
+
+  // Clear all filters
+  const clearFilters = () => {
+    setFilterOptions({});
   };
 
   // Delete a blog post
@@ -155,15 +209,29 @@ export const useBlogPosts = () => {
     }
   };
 
+  // Get post by ID
+  const getPostById = (id: string): BlogPost | undefined => {
+    return posts.find(post => post.id === id);
+  };
+
   useEffect(() => {
     fetchPosts();
-  }, []);
+  }, [sortField, sortDirection, filterOptions]);
 
   return {
     posts,
     isLoading,
     fetchPosts,
     deletePost,
-    savePost
+    savePost,
+    getPostById,
+    sortPosts,
+    filterPosts,
+    clearFilters,
+    categories,
+    authors,
+    sortField,
+    sortDirection,
+    filterOptions
   };
 };
