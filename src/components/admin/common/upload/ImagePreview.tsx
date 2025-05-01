@@ -11,7 +11,15 @@ const ImagePreview = ({ imageUrl, onRemove }: ImagePreviewProps) => {
   return (
     <div className="relative">
       <div className="border rounded-md overflow-hidden h-48 bg-gray-50 flex items-center justify-center">
-        <img src={imageUrl} alt="Preview" className="h-full object-contain" />
+        <img 
+          src={imageUrl} 
+          alt="Preview" 
+          className="h-full object-contain"
+          onError={(e) => {
+            console.error("Image failed to load:", imageUrl);
+            e.currentTarget.src = "/placeholder.svg";
+          }} 
+        />
       </div>
       <Button 
         size="sm" 

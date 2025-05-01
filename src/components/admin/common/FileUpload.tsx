@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAuth } from "@/contexts/AuthContext";
@@ -20,9 +20,18 @@ const FileUpload = ({ onUploadComplete, currentImageUrl, label = "Image" }: File
     onUploadComplete
   });
 
+  useEffect(() => {
+    // Update preview when currentImageUrl changes
+    if (currentImageUrl) {
+      setPreview(currentImageUrl);
+    }
+  }, [currentImageUrl]);
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    
+    console.log('File selected:', { name: file.name, type: file.type, size: file.size });
 
     const uploadedUrl = await uploadFile(file);
     if (uploadedUrl) {

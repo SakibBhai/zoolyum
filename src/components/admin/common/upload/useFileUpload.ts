@@ -15,18 +15,18 @@ export const useFileUpload = ({ onUploadComplete }: UseFileUploadProps) => {
   const { isAuthenticated } = useAuth();
 
   const uploadFile = async (file: File) => {
-    if (!file) return;
+    if (!file) return null;
 
     // Check file type
     if (!file.type.startsWith('image/')) {
       setUploadError('Please upload an image file');
-      return;
+      return null;
     }
 
     // Check file size (limit to 2MB)
     if (file.size > 2 * 1024 * 1024) {
       setUploadError('File size must be less than 2MB');
-      return;
+      return null;
     }
 
     setIsUploading(true);
@@ -43,7 +43,7 @@ export const useFileUpload = ({ onUploadComplete }: UseFileUploadProps) => {
       const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
       const filePath = fileName;
 
-      console.log('Starting file upload:', { fileName, filePath, fileType: file.type });
+      console.log('Starting file upload:', { fileName, filePath, fileType: file.type, fileSize: file.size });
 
       // Upload the file to Supabase Storage with content type
       const { data, error } = await supabase.storage
