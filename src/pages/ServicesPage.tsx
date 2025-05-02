@@ -1,7 +1,12 @@
 
 import { Helmet } from "react-helmet";
 import Navbar from "@/components/Navbar";
-import Services from "@/components/Services";
+import ServicesContent from "@/components/services/ServicesContent";
+import ServiceHero from "@/components/services/ServiceHero";
+import ServiceProcess from "@/components/services/ServiceProcess";
+import ServicePricing from "@/components/services/ServicePricing"; 
+import ServiceTestimonials from "@/components/services/ServiceTestimonials";
+import ServiceCta from "@/components/services/ServiceCta";
 import Footer from "@/components/Footer";
 
 const ServicesPage = () => {
@@ -13,10 +18,12 @@ const ServicesPage = () => {
       </Helmet>
       <Navbar />
       <main>
-        <div className="container mx-auto pt-24 px-4">
-          <h1 className="text-4xl font-bold text-center mb-8">Our Professional Services</h1>
-        </div>
-        <Services />
+        <ServiceHero />
+        <ServicesContent />
+        <ServiceProcess />
+        <ServicePricing />
+        <ServiceTestimonials />
+        <ServiceCta />
       </main>
       <Footer />
     </div>
