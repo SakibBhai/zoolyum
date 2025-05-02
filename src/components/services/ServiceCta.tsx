@@ -1,5 +1,5 @@
 
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Phone, MessageSquare } from "lucide-react";
 import { motion } from "framer-motion";
 
 const ServiceCta = () => {
@@ -29,7 +29,7 @@ const ServiceCta = () => {
           </motion.p>
           
           <motion.div
-            className="mt-10"
+            className="mt-10 flex flex-wrap justify-center gap-4"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
@@ -44,11 +44,37 @@ const ServiceCta = () => {
             </a>
           </motion.div>
           
+          <motion.div 
+            className="mt-8 flex justify-center gap-6"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            viewport={{ once: true }}
+          >
+            <a 
+              href="tel:8801601000950" 
+              className="flex items-center gap-2 text-secondary hover:text-primary transition-colors"
+            >
+              <Phone className="h-5 w-5" />
+              <span>+8801601000950</span>
+            </a>
+            
+            <a 
+              href="https://wa.link/y2yxkl" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-secondary hover:text-primary transition-colors"
+            >
+              <MessageSquare className="h-5 w-5" />
+              <span>WhatsApp</span>
+            </a>
+          </motion.div>
+          
           <motion.p
             className="mt-6 text-sm text-secondary/60"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
             viewport={{ once: true }}
           >
             No commitments. Let's just talk about your vision and goals.
