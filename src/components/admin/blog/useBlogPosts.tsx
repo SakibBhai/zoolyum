@@ -4,16 +4,21 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 
-// Blog post interface
+// Blog post interface with SEO fields
 export interface BlogPost {
   id: string;
   title: string;
   category: string;
+  slug: string;
   excerpt: string;
   content: string;
   author: string;
   date: string;
   image: string;
+  meta_title?: string;
+  meta_description?: string;
+  meta_keywords?: string;
+  meta_image?: string;
 }
 
 export type SortField = "title" | "date" | "category" | "author";
@@ -156,11 +161,16 @@ export const useBlogPosts = () => {
           .update({
             title: post.title,
             category: post.category,
+            slug: post.slug,
             excerpt: post.excerpt,
             content: post.content,
             author: post.author,
             date: post.date,
-            image: post.image
+            image: post.image,
+            meta_title: post.meta_title || null,
+            meta_description: post.meta_description || null,
+            meta_keywords: post.meta_keywords || null,
+            meta_image: post.meta_image || null
           })
           .eq('id', post.id);
         
@@ -180,11 +190,16 @@ export const useBlogPosts = () => {
           .insert({
             title: post.title,
             category: post.category,
+            slug: post.slug,
             excerpt: post.excerpt,
             content: post.content,
             author: post.author,
             date: post.date,
-            image: post.image
+            image: post.image,
+            meta_title: post.meta_title || null,
+            meta_description: post.meta_description || null,
+            meta_keywords: post.meta_keywords || null,
+            meta_image: post.meta_image || null
           })
           .select();
         

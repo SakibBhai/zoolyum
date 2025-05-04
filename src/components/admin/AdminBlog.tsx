@@ -15,11 +15,16 @@ const AdminBlog = () => {
     id: "",
     title: "",
     category: "",
+    slug: "",
     excerpt: "",
     content: "",
     author: "",
     date: "",
     image: "",
+    meta_title: "",
+    meta_description: "",
+    meta_keywords: "",
+    meta_image: ""
   });
   const { toast } = useToast();
   const { posts, isLoading, deletePost, savePost, fetchPosts } = useBlogPosts();
@@ -30,11 +35,16 @@ const AdminBlog = () => {
       id: "",
       title: "",
       category: "",
+      slug: "",
       excerpt: "",
       content: "",
       author: "",
       date: new Date().toISOString().split('T')[0],
       image: "",
+      meta_title: "",
+      meta_description: "",
+      meta_keywords: "",
+      meta_image: ""
     });
   };
 
@@ -48,13 +58,41 @@ const AdminBlog = () => {
     if (success) {
       fetchPosts(); // Refresh the posts after saving
       setIsEditing(false);
-      setCurrentPost({ id: "", title: "", category: "", excerpt: "", content: "", author: "", date: "", image: "" });
+      setCurrentPost({ 
+        id: "", 
+        title: "", 
+        category: "", 
+        slug: "", 
+        excerpt: "", 
+        content: "", 
+        author: "", 
+        date: "", 
+        image: "",
+        meta_title: "",
+        meta_description: "",
+        meta_keywords: "",
+        meta_image: ""
+      });
     }
   };
 
   const handleCancel = () => {
     setIsEditing(false);
-    setCurrentPost({ id: "", title: "", category: "", excerpt: "", content: "", author: "", date: "", image: "" });
+    setCurrentPost({ 
+      id: "", 
+      title: "", 
+      category: "", 
+      slug: "", 
+      excerpt: "", 
+      content: "", 
+      author: "", 
+      date: "", 
+      image: "",
+      meta_title: "",
+      meta_description: "",
+      meta_keywords: "",
+      meta_image: ""
+    });
   };
 
   const handlePreview = (post: BlogPost) => {
