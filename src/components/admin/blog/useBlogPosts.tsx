@@ -87,7 +87,24 @@ export const useBlogPosts = () => {
         throw error;
       }
       
-      setPosts(data || []);
+      // Map the data from Supabase to match our BlogPost interface
+      const mappedData: BlogPost[] = (data || []).map(post => ({
+        id: post.id,
+        title: post.title,
+        category: post.category,
+        slug: post.slug || generateSlugFromTitle(post.title), // Generate slug if not present
+        excerpt: post.excerpt,
+        content: post.content,
+        author: post.author,
+        date: post.date,
+        image: post.image,
+        meta_title: post.meta_title || '',
+        meta_description: post.meta_description || '',
+        meta_keywords: post.meta_keywords || '',
+        meta_image: post.meta_image || ''
+      }));
+      
+      setPosts(mappedData);
       
       // Extract unique categories and authors for filter dropdowns
       if (data) {
@@ -106,6 +123,15 @@ export const useBlogPosts = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Helper function to generate a slug from title
+  const generateSlugFromTitle = (title: string): string => {
+    return title
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, '') // Remove special characters
+      .replace(/\s+/g, '-')     // Replace spaces with hyphens
+      .replace(/-+/g, '-');     // Replace multiple hyphens with a single one
   };
 
   // Set sort options and refetch

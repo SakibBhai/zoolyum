@@ -21,6 +21,15 @@ const Blog = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showSeoTips, setShowSeoTips] = useState(false);
 
+  // Generate slug from title helper function
+  const generateSlugFromTitle = (title: string): string => {
+    return title
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, '') // Remove special characters
+      .replace(/\s+/g, '-')     // Replace spaces with hyphens
+      .replace(/-+/g, '-');     // Replace multiple hyphens with a single one
+  };
+
   // Fetch blog posts from Supabase
   useEffect(() => {
     const fetchPosts = async () => {
@@ -35,8 +44,24 @@ const Blog = () => {
           throw error;
         }
         
-        // Instead of modifying the posts, we'll keep the original data
-        setBlogPosts(data || []);
+        // Map the data to include the required slug field
+        const mappedData: BlogPost[] = (data || []).map(post => ({
+          id: post.id,
+          title: post.title,
+          category: post.category,
+          slug: post.slug || generateSlugFromTitle(post.title),
+          excerpt: post.excerpt,
+          content: post.content,
+          author: post.author,
+          date: post.date,
+          image: post.image,
+          meta_title: post.meta_title || '',
+          meta_description: post.meta_description || '',
+          meta_keywords: post.meta_keywords || '',
+          meta_image: post.meta_image || ''
+        }));
+
+        setBlogPosts(mappedData);
       } catch (error) {
         console.error('Error fetching blog posts:', error);
       } finally {

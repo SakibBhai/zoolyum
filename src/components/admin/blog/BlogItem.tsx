@@ -3,17 +3,7 @@ import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Pencil, Trash2, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
-interface BlogPost {
-  id: string;
-  title: string;
-  category: string;
-  excerpt: string;
-  content: string;
-  author: string;
-  date: string;
-  image: string;
-}
+import { BlogPost } from "./useBlogPosts";
 
 interface BlogItemProps {
   post: BlogPost;
