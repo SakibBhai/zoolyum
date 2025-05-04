@@ -46,6 +46,11 @@ export type Database = {
           excerpt: string
           id: string
           image: string
+          meta_description: string | null
+          meta_image: string | null
+          meta_keywords: string | null
+          meta_title: string | null
+          slug: string | null
           title: string
         }
         Insert: {
@@ -57,6 +62,11 @@ export type Database = {
           excerpt: string
           id?: string
           image: string
+          meta_description?: string | null
+          meta_image?: string | null
+          meta_keywords?: string | null
+          meta_title?: string | null
+          slug?: string | null
           title: string
         }
         Update: {
@@ -68,6 +78,11 @@ export type Database = {
           excerpt?: string
           id?: string
           image?: string
+          meta_description?: string | null
+          meta_image?: string | null
+          meta_keywords?: string | null
+          meta_title?: string | null
+          slug?: string | null
           title?: string
         }
         Relationships: []
