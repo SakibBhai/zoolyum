@@ -32,6 +32,9 @@ const FileUpload = ({ onUploadComplete, currentImageUrl, label = "Image" }: File
     if (!file) return;
     
     console.log('File selected:', { name: file.name, type: file.type, size: file.size });
+    
+    // Clear any previous error before attempting upload
+    setUploadError(null);
 
     const uploadedUrl = await uploadFile(file);
     if (uploadedUrl) {
@@ -61,7 +64,7 @@ const FileUpload = ({ onUploadComplete, currentImageUrl, label = "Image" }: File
       )}
 
       {uploadError && (
-        <Alert variant="destructive">
+        <Alert variant="destructive" className="mt-2">
           <AlertDescription>{uploadError}</AlertDescription>
         </Alert>
       )}

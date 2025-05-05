@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -41,10 +41,31 @@ export const useFileUpload = ({ onUploadComplete }: UseFileUploadProps) => {
       // Create a unique file name
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
-      const filePath = fileName;
+      const filePath = `uploads/${fileName}`;
 
       console.log('Starting file upload:', { fileName, filePath, fileType: file.type, fileSize: file.size });
 
+      // First, make sure the bucket exists and is public
+      const { data: bucketData, error: bucketError } = await supabase.storage
+        .getBucket('uploads');
+        
+      if (bucketError && bucketError.message.includes('The resource was not found')) {
+        // Create the bucket if it doesn't exist
+        console.log('Creating uploads bucket...');
+        const { error: createError } = await supabase.storage.createBucket('uploads', {
+          public: true,
+          fileSizeLimit: 2097152, // 2MB
+        });
+        
+        if (createError) {
+          console.error('Error creating bucket:', createError);
+          throw new Error(`Failed to create storage bucket: ${createError.message}`);
+        }
+      } else if (bucketError) {
+        console.error('Error checking bucket:', bucketError);
+        throw bucketError;
+      }
+      
       // Upload the file to Supabase Storage with content type
       const { data, error } = await supabase.storage
         .from('uploads')
@@ -75,9 +96,18 @@ export const useFileUpload = ({ onUploadComplete }: UseFileUploadProps) => {
       });
 
       return publicUrl;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error uploading file:', error);
-      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      
+      let errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      
+      // Handle specific RLS policy errors
+      if (errorMessage.includes('row-level security') || 
+          errorMessage.includes('new row violates') || 
+          error.statusCode === '403') {
+        errorMessage = 'Permission denied. Contact your administrator to set up proper storage permissions.';
+      }
+      
       setUploadError(`Error uploading file: ${errorMessage}`);
       toast({
         title: "Upload failed",
