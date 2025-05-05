@@ -57,6 +57,15 @@ export const useBlogPosts = () => {
     }
   });
 
+  // Helper function to generate a slug from title
+  const generateSlugFromTitle = (title: string): string => {
+    return title
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, '') // Remove special characters
+      .replace(/\s+/g, '-')     // Replace spaces with hyphens
+      .replace(/-+/g, '-');     // Replace multiple hyphens with a single one
+  };
+
   // Fetch blog posts from Supabase with sorting and filtering
   const fetchPosts = async () => {
     try {
@@ -125,15 +134,6 @@ export const useBlogPosts = () => {
     }
   };
 
-  // Helper function to generate a slug from title
-  const generateSlugFromTitle = (title: string): string => {
-    return title
-      .toLowerCase()
-      .replace(/[^\w\s-]/g, '') // Remove special characters
-      .replace(/\s+/g, '-')     // Replace spaces with hyphens
-      .replace(/-+/g, '-');     // Replace multiple hyphens with a single one
-  };
-
   // Set sort options and refetch
   const sortPosts = (field: SortField, direction: SortDirection) => {
     setSortField(field);
@@ -180,6 +180,10 @@ export const useBlogPosts = () => {
   // Add or update a blog post
   const savePost = async (post: BlogPost) => {
     try {
+      if (!post.slug) {
+        post.slug = generateSlugFromTitle(post.title);
+      }
+      
       if (post.id) {
         // Update existing post
         const { error } = await supabase

@@ -20,7 +20,6 @@ const Blog = () => {
   const [visiblePosts, setVisiblePosts] = useState<number>(6);
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [showSeoTips, setShowSeoTips] = useState(false);
 
   // Generate slug from title helper function
   const generateSlugFromTitle = (title: string): string => {
