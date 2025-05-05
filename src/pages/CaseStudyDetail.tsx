@@ -1,10 +1,12 @@
 
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Calendar, Clock, Building, CheckCircle, PieChart } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, Building, CheckCircle, PieChart, ArrowRight } from "lucide-react";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
 
 interface CaseStudy {
   id: string;
@@ -18,12 +20,77 @@ interface CaseStudy {
   created_at: string;
 }
 
+interface ProjectStep {
+  id: number;
+  title: string;
+  description: string;
+}
+
+interface ResultMetric {
+  percentage: string;
+  title: string;
+  description: string;
+}
+
 const CaseStudyDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [caseStudy, setCaseStudy] = useState<CaseStudy | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [relatedCaseStudies, setRelatedCaseStudies] = useState<CaseStudy[]>([]);
   const { toast } = useToast();
+
+  // Sample project steps data (in a real app, this might come from the database)
+  const projectSteps: ProjectStep[] = [
+    {
+      id: 1,
+      title: "Digital Audit",
+      description: "Comprehensive assessment of existing digital infrastructure, user flows, competitors, and market opportunities."
+    },
+    {
+      id: 2,
+      title: "Customer Journey Mapping",
+      description: "Detailed analysis of customer touch points and interactions with your business to identify pain points and opportunities."
+    },
+    {
+      id: 3,
+      title: "Digital Strategy Development",
+      description: "Creation of a cohesive, actionable digital transformation roadmap with clear KPIs and measurable outcomes."
+    },
+    {
+      id: 4,
+      title: "Experience Design",
+      description: "Redesign of key touchpoints and interfaces with a focus on user experience and conversion optimization."
+    },
+    {
+      id: 5,
+      title: "Content Strategy",
+      description: "Development of a content framework to leverage your brand's unique story and value."
+    },
+    {
+      id: 6,
+      title: "Implementation & Training",
+      description: "Execution and optimization of the digital transformation plan with ongoing support and training."
+    }
+  ];
+
+  // Sample results metrics data
+  const resultMetrics: ResultMetric[] = [
+    {
+      percentage: "156%",
+      title: "Increase in E-commerce Revenue",
+      description: "Year-over-year growth in digital sales through optimization of the new digital ecosystem"
+    },
+    {
+      percentage: "4.2×",
+      title: "Improvement in Conversion Rate",
+      description: "Significant increase in website conversion rates through improved user journey design"
+    },
+    {
+      percentage: "68%",
+      title: "Growth in Digital Engagement",
+      description: "Higher consumer interaction levels with the new content strategy and digital presence"
+    }
+  ];
 
   useEffect(() => {
     const fetchCaseStudy = async () => {
@@ -51,7 +118,7 @@ const CaseStudyDetail = () => {
             .select('*')
             .eq('industry', data.industry)
             .neq('id', id)
-            .limit(3);
+            .limit(2);
           
           if (relatedError) {
             console.error('Error fetching related case studies:', relatedError);
@@ -117,7 +184,7 @@ const CaseStudyDetail = () => {
   }, [caseStudy]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-black text-white">
       <Navbar />
       
       <div className="container mx-auto px-4 pt-32 pb-20">
@@ -130,126 +197,195 @@ const CaseStudyDetail = () => {
             {/* Back button */}
             <Link
               to="/case-study"
-              className="inline-flex items-center mb-8 text-muted-foreground hover:text-foreground transition-colors"
+              className="inline-flex items-center mb-8 text-muted-foreground hover:text-white transition-colors"
             >
               <ArrowLeft className="mr-2 h-4 w-4" /> Back to all case studies
             </Link>
             
-            {/* Header section */}
-            <div className="mb-12 fade-up">
-              <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground mb-4">
-                <span className="flex items-center">
-                  <Calendar size={14} className="mr-1" />
-                  {formatDate(caseStudy.created_at)}
-                </span>
-                <span className="flex items-center">
-                  <Clock size={14} className="mr-1" />
-                  {calculateReadTime(caseStudy)}
-                </span>
-                <span className="flex items-center">
-                  <Building size={14} className="mr-1" />
-                  {caseStudy.industry}
-                </span>
-              </div>
-              
-              <h1 className="text-3xl md:text-5xl font-bold mb-6">{caseStudy.title}</h1>
-              <p className="text-lg text-muted-foreground max-w-4xl">{caseStudy.summary}</p>
-            </div>
-            
-            {/* Hero image */}
-            <div className="rounded-xl overflow-hidden mb-16 fade-up max-h-[500px]">
-              <img 
-                src={caseStudy.image}
-                alt={caseStudy.title}
-                className="w-full h-full object-cover"
-              />
-            </div>
-            
-            {/* Content sections */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mb-16">
-              <div className="fade-up">
-                <div className="p-6 bg-muted rounded-xl">
-                  <div className="flex items-center mb-4">
-                    <div className="bg-primary/10 p-3 rounded-full mr-4">
-                      <Building className="h-6 w-6 text-primary" />
-                    </div>
-                    <h2 className="text-xl font-bold">The Challenge</h2>
-                  </div>
-                  <p className="text-muted-foreground">{caseStudy.challenge}</p>
-                </div>
-              </div>
-              
-              <div className="fade-up" style={{ animationDelay: "0.1s" }}>
-                <div className="p-6 bg-muted rounded-xl">
-                  <div className="flex items-center mb-4">
-                    <div className="bg-primary/10 p-3 rounded-full mr-4">
-                      <CheckCircle className="h-6 w-6 text-primary" />
-                    </div>
-                    <h2 className="text-xl font-bold">Our Solution</h2>
-                  </div>
-                  <p className="text-muted-foreground">{caseStudy.solution}</p>
-                </div>
-              </div>
-              
-              <div className="fade-up" style={{ animationDelay: "0.2s" }}>
-                <div className="p-6 bg-muted rounded-xl">
-                  <div className="flex items-center mb-4">
-                    <div className="bg-primary/10 p-3 rounded-full mr-4">
-                      <PieChart className="h-6 w-6 text-primary" />
-                    </div>
-                    <h2 className="text-xl font-bold">The Results</h2>
-                  </div>
-                  <p className="text-muted-foreground">{caseStudy.results}</p>
+            {/* Hero Section */}
+            <div className="py-16 relative mb-16">
+              <div className="absolute inset-0 bg-gradient-to-b from-gray-900/60 to-black z-0"></div>
+              <div className="relative z-10 max-w-4xl mx-auto text-center">
+                <h1 className="text-4xl md:text-5xl font-bold mb-6">{caseStudy.title}</h1>
+                <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-300 mb-8">
+                  <span className="flex items-center">
+                    <Calendar size={14} className="mr-1" />
+                    {formatDate(caseStudy.created_at)}
+                  </span>
+                  <span>•</span>
+                  <span>{caseStudy.industry}</span>
+                  <span>•</span>
+                  <span>{calculateReadTime(caseStudy)}</span>
                 </div>
               </div>
             </div>
             
-            {/* Related case studies */}
-            {relatedCaseStudies.length > 0 && (
-              <div className="mt-20 fade-up">
-                <h2 className="text-2xl font-bold mb-8">Related Case Studies</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  {relatedCaseStudies.map((study) => (
-                    <div 
-                      key={study.id} 
-                      className="rounded-xl overflow-hidden shadow-lg transition-all hover:shadow-xl hover:translate-y-[-5px] bg-card"
-                    >
-                      <div className="h-48 overflow-hidden">
-                        <img 
-                          src={study.image} 
-                          alt={study.title} 
-                          className="w-full h-full object-cover transition-transform hover:scale-105"
-                        />
-                      </div>
-                      <div className="p-6">
-                        <h3 className="text-xl font-bold mb-3">{study.title}</h3>
-                        <p className="text-muted-foreground mb-4 line-clamp-2">{study.summary}</p>
-                        <Link 
-                          to={`/case-study/${study.id}`} 
-                          className="inline-flex items-center text-primary hover:text-primary/80 transition-colors"
-                        >
-                          Read Case Study
-                        </Link>
-                      </div>
+            {/* Project Overview */}
+            <section className="mb-24 grid grid-cols-1 md:grid-cols-3 gap-12">
+              <div className="md:col-span-2">
+                <h2 className="text-2xl font-bold mb-6">Project Overview</h2>
+                <p className="text-gray-300 mb-6">
+                  {caseStudy.summary}
+                </p>
+              </div>
+              
+              <div className="bg-gray-900 p-6 rounded-lg">
+                <h3 className="text-xl font-bold mb-4">Project Details</h3>
+                
+                <div className="space-y-4 text-sm">
+                  <div>
+                    <p className="text-primary mb-1">Industry</p>
+                    <p className="text-gray-300">{caseStudy.industry}</p>
+                  </div>
+                  
+                  <div>
+                    <p className="text-primary mb-1">Timeline</p>
+                    <p className="text-gray-300">12 weeks</p>
+                  </div>
+                  
+                  <div>
+                    <p className="text-primary mb-1">Services</p>
+                    <div className="flex flex-wrap gap-2">
+                      <span className="bg-gray-800 px-2 py-1 rounded text-xs">Digital Strategy</span>
+                      <span className="bg-gray-800 px-2 py-1 rounded text-xs">UX/UI Design</span>
+                      <span className="bg-gray-800 px-2 py-1 rounded text-xs">Development</span>
                     </div>
-                  ))}
+                  </div>
                 </div>
               </div>
-            )}
+            </section>
             
-            {/* Call to action */}
-            <div className="mt-20 glass rounded-xl p-8 text-center max-w-4xl mx-auto fade-up">
-              <h2 className="text-2xl md:text-3xl font-bold mb-4">Ready to create your success story?</h2>
-              <p className="text-lg text-muted-foreground mb-6">
-                Let's discuss how we can help transform your business and achieve remarkable results.
+            {/* Challenge & Solution */}
+            <section className="mb-24 grid grid-cols-1 md:grid-cols-2 gap-12">
+              <div>
+                <h2 className="text-2xl font-bold mb-6">The Challenge</h2>
+                <p className="text-gray-300">
+                  {caseStudy.challenge}
+                </p>
+              </div>
+              
+              <div>
+                <h2 className="text-2xl font-bold mb-6">The Solution</h2>
+                <p className="text-gray-300">
+                  {caseStudy.solution}
+                </p>
+              </div>
+            </section>
+            
+            {/* Our Approach */}
+            <section className="mb-24">
+              <h2 className="text-2xl font-bold mb-12 text-center">Our Approach</h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {projectSteps.map((step) => (
+                  <div key={step.id} className="bg-gray-900 p-6 rounded-lg">
+                    <div className="bg-primary/20 text-primary h-10 w-10 rounded-full flex items-center justify-center mb-4">
+                      {step.id}
+                    </div>
+                    <h3 className="text-xl font-bold mb-3">{step.title}</h3>
+                    <p className="text-gray-400">{step.description}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+            
+            {/* Project Gallery */}
+            <section className="mb-24">
+              <h2 className="text-2xl font-bold mb-12 text-center">Project Gallery</h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {[1, 2, 3, 4, 5, 6].map((item) => (
+                  <div 
+                    key={item} 
+                    className="bg-gray-900 aspect-video rounded-lg overflow-hidden flex items-center justify-center"
+                  >
+                    <img 
+                      src={caseStudy.image} 
+                      alt={`Project gallery ${item}`} 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+            </section>
+            
+            {/* Results & Impact */}
+            <section className="mb-24">
+              <h2 className="text-2xl font-bold mb-12 text-center">Results & Impact</h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {resultMetrics.map((metric, index) => (
+                  <div key={index} className="bg-gray-900 p-6 rounded-lg text-center">
+                    <h3 className="text-4xl font-bold text-primary mb-2">{metric.percentage}</h3>
+                    <h4 className="text-lg font-semibold mb-3">{metric.title}</h4>
+                    <p className="text-gray-400 text-sm">{metric.description}</p>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-12 text-gray-300">
+                <p>{caseStudy.results}</p>
+              </div>
+            </section>
+            
+            {/* Client Testimonial */}
+            <section className="mb-24">
+              <h2 className="text-2xl font-bold mb-12 text-center">Client Feedback</h2>
+              
+              <div className="bg-gray-900 p-10 rounded-lg max-w-4xl mx-auto">
+                <div className="text-4xl text-primary mb-6">"</div>
+                <blockquote className="text-xl mb-8">
+                  Working with Zoolyum transformed not just our digital presence but our entire approach to customer engagement. The strategic vision and execution went above and beyond what we could have ever anticipated. Our team now has both the tools and the capabilities to continue evolving our digital ecosystem as our business grows.
+                </blockquote>
+                <div className="flex items-center">
+                  <div className="mr-4 h-12 w-12 bg-gray-800 rounded-full"></div>
+                  <div>
+                    <p className="font-semibold">Michael Chen</p>
+                    <p className="text-sm text-gray-400">Marketing Director, Client</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+            
+            {/* Explore More Projects */}
+            <section className="mb-24">
+              <h2 className="text-2xl font-bold mb-12 text-center">Explore More Projects</h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {relatedCaseStudies.map((study) => (
+                  <Link 
+                    key={study.id} 
+                    to={`/case-study/${study.id}`}
+                    className="relative block bg-gray-900 rounded-lg overflow-hidden group h-64"
+                  >
+                    <img 
+                      src={study.image} 
+                      alt={study.title} 
+                      className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent flex flex-col justify-end p-6">
+                      <h3 className="text-xl font-bold mb-2">{study.title}</h3>
+                      <span className="text-sm text-gray-300">{study.industry}</span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </section>
+            
+            {/* Call to Action */}
+            <section className="text-center mb-24 bg-gray-900 p-16 rounded-lg">
+              <h2 className="text-2xl md:text-3xl font-bold mb-4">Ready to Transform Your Brand?</h2>
+              <p className="text-gray-300 max-w-2xl mx-auto mb-8">
+                Let's collaborate to create a tailored digital strategy that will transform your online presence and drive real business results.
               </p>
-              <a 
-                href="/#contact" 
-                className="inline-block px-8 py-3 bg-primary text-white rounded-full hover:bg-primary/90 transition-colors"
+              <Button 
+                size="lg" 
+                className="bg-primary hover:bg-primary/90 text-white rounded-full px-8"
+                asChild
               >
-                Start a Project
-              </a>
-            </div>
+                <a href="/#contact">Start Your Project</a>
+              </Button>
+            </section>
           </>
         ) : (
           <div className="flex flex-col items-center justify-center py-16">
@@ -264,6 +400,8 @@ const CaseStudyDetail = () => {
           </div>
         )}
       </div>
+      
+      <Footer />
     </div>
   );
 };
