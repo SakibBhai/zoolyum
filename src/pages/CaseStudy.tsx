@@ -127,45 +127,45 @@ const CaseStudy = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-white text-gray-900">
       <Navbar />
       
       <div className="container mx-auto px-4 pt-32 pb-20">
         {/* Hero Section */}
         <div className="py-16 mb-16 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 fade-up">Case Studies</h1>
-          <p className="text-lg text-gray-300 max-w-3xl mx-auto mb-12 fade-up">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 fade-up text-gray-900">Case Studies</h1>
+          <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-12 fade-up">
             Explore our client success stories and discover how we've helped transform businesses across industries with innovative digital solutions.
           </p>
           
           {/* Filter buttons */}
           <div className="flex flex-wrap justify-center gap-3 fade-up">
             <button 
-              className={`px-5 py-2 rounded-full transition-all ${activeFilter === 'all' ? 'bg-primary text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}
+              className={`px-5 py-2 rounded-full transition-all ${activeFilter === 'all' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
               onClick={() => setActiveFilter('all')}
             >
               All Projects
             </button>
             <button 
-              className={`px-5 py-2 rounded-full transition-all ${activeFilter === 'branding' ? 'bg-primary text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}
+              className={`px-5 py-2 rounded-full transition-all ${activeFilter === 'branding' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
               onClick={() => setActiveFilter('branding')}
             >
               Branding
             </button>
             <button 
-              className={`px-5 py-2 rounded-full transition-all ${activeFilter === 'marketing' ? 'bg-primary text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}
+              className={`px-5 py-2 rounded-full transition-all ${activeFilter === 'marketing' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
               onClick={() => setActiveFilter('marketing')}
             >
               Marketing
             </button>
             <button 
-              className={`px-5 py-2 rounded-full transition-all ${activeFilter === 'web' ? 'bg-primary text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}
+              className={`px-5 py-2 rounded-full transition-all ${activeFilter === 'web' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
               onClick={() => setActiveFilter('web')}
             >
               Web Design
             </button>
             <button 
-              className={`px-5 py-2 rounded-full transition-all ${activeFilter === 'content' ? 'bg-primary text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}
+              className={`px-5 py-2 rounded-full transition-all ${activeFilter === 'content' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
               onClick={() => setActiveFilter('content')}
             >
               Content
@@ -182,13 +182,13 @@ const CaseStudy = () => {
             {/* Featured Case Study */}
             {featuredCase && activeFilter === 'all' && (
               <div className="mb-16 fade-up">
-                <div className="relative h-[500px] rounded-2xl overflow-hidden">
+                <div className="relative h-[500px] rounded-2xl overflow-hidden shadow-xl">
                   <img 
                     src={featuredCase.image} 
                     alt={featuredCase.title} 
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 to-transparent"></div>
                   <div className="absolute bottom-0 left-0 p-8 w-full md:w-2/3">
                     <div className="flex flex-wrap items-center gap-3 text-sm text-gray-300 mb-3">
                       <span className="bg-primary/20 text-primary px-3 py-1 rounded-full text-xs">
@@ -203,7 +203,7 @@ const CaseStudy = () => {
                         {calculateReadTime(featuredCase)}
                       </span>
                     </div>
-                    <h2 className="text-3xl md:text-4xl font-bold mb-4">{featuredCase.title}</h2>
+                    <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">{featuredCase.title}</h2>
                     <p className="text-gray-300 mb-6 line-clamp-2">{featuredCase.summary}</p>
                     <Link 
                       to={`/case-study/${featuredCase.id}`} 
@@ -224,7 +224,7 @@ const CaseStudy = () => {
                     <Link
                       key={study.id}
                       to={`/case-study/${study.id}`} 
-                      className="group bg-gray-900 rounded-xl overflow-hidden transition-all hover:shadow-xl hover:shadow-primary/10 hover:translate-y-[-5px] fade-up"
+                      className="group bg-white rounded-xl overflow-hidden transition-all hover:shadow-xl hover:translate-y-[-5px] fade-up border border-gray-200"
                       style={{ animationDelay: `${index * 0.1}s` }}
                     >
                       <div className="h-60 overflow-hidden">
@@ -235,8 +235,8 @@ const CaseStudy = () => {
                         />
                       </div>
                       <div className="p-6">
-                        <div className="flex items-center gap-3 text-sm text-gray-400 mb-2">
-                          <span className="bg-primary/20 text-primary px-3 py-1 rounded-full text-xs">
+                        <div className="flex items-center gap-3 text-sm text-gray-500 mb-2">
+                          <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs">
                             {study.industry}
                           </span>
                           <span className="flex items-center">
@@ -244,8 +244,8 @@ const CaseStudy = () => {
                             {calculateReadTime(study)}
                           </span>
                         </div>
-                        <h3 className="text-xl font-bold mb-3 group-hover:text-primary transition-colors">{study.title}</h3>
-                        <p className="text-gray-400 mb-4 line-clamp-2">{study.summary}</p>
+                        <h3 className="text-xl font-bold mb-3 group-hover:text-primary transition-colors text-gray-800">{study.title}</h3>
+                        <p className="text-gray-600 mb-4 line-clamp-2">{study.summary}</p>
                         <span className="inline-flex items-center text-primary group-hover:gap-2 transition-all">
                           Read Case Study <ArrowRight size={16} className="ml-1 transition-transform group-hover:translate-x-1" />
                         </span>
@@ -269,9 +269,9 @@ const CaseStudy = () => {
               </>
             ) : (
               <div className="text-center py-16">
-                <FileText className="h-16 w-16 mx-auto text-gray-500 mb-4" />
-                <h3 className="text-xl font-bold mb-2">No case studies found</h3>
-                <p className="text-gray-400">
+                <FileText className="h-16 w-16 mx-auto text-gray-400 mb-4" />
+                <h3 className="text-xl font-bold mb-2 text-gray-800">No case studies found</h3>
+                <p className="text-gray-500">
                   No case studies match your current filter. Try selecting a different category.
                 </p>
               </div>
@@ -280,9 +280,9 @@ const CaseStudy = () => {
         )}
         
         {/* Call to action */}
-        <div className="bg-gray-900 rounded-2xl p-12 text-center max-w-4xl mx-auto fade-up">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4">Ready to create your success story?</h2>
-          <p className="text-lg text-gray-300 mb-8">
+        <div className="bg-gray-100 rounded-2xl p-12 text-center max-w-4xl mx-auto fade-up">
+          <h2 className="text-2xl md:text-3xl font-bold mb-4 text-gray-800">Ready to create your success story?</h2>
+          <p className="text-lg text-gray-600 mb-8">
             Let's discuss how we can help transform your business and achieve remarkable results.
           </p>
           <Button 
