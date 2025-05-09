@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -144,6 +143,7 @@ const BlogForm = ({ initialPost, onSubmit, onCancel }: BlogFormProps) => {
 
   const handleImageUpload = (url: string, field: 'image' | 'meta_image' = 'image') => {
     setPost({...post, [field]: url});
+    console.log(`Image uploaded for ${field}:`, url);
   };
 
   const addCustomCategory = () => {

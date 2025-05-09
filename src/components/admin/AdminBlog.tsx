@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 // Import the components
 import BlogForm from "./blog/BlogForm";
@@ -54,6 +54,7 @@ const AdminBlog = () => {
   };
 
   const handleSubmit = async (post: BlogPost) => {
+    console.log("Submitting blog post:", post);
     const success = await savePost(post);
     if (success) {
       fetchPosts(); // Refresh the posts after saving
