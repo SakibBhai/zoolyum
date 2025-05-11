@@ -45,7 +45,7 @@ export const useFileUpload = ({ onUploadComplete }: UseFileUploadProps) => {
 
       console.log('Starting file upload:', { fileName, filePath, fileType: file.type, fileSize: file.size });
 
-      // First, make sure the bucket exists and is public
+      // First, check if the bucket exists and create it if it doesn't
       const { data: bucketData, error: bucketError } = await supabase.storage
         .getBucket('uploads');
         
@@ -53,7 +53,7 @@ export const useFileUpload = ({ onUploadComplete }: UseFileUploadProps) => {
         // Create the bucket if it doesn't exist
         console.log('Creating uploads bucket...');
         const { error: createError } = await supabase.storage.createBucket('uploads', {
-          public: true,
+          public: true, // Make the bucket public
           fileSizeLimit: 2097152, // 2MB
         });
         
@@ -65,18 +65,29 @@ export const useFileUpload = ({ onUploadComplete }: UseFileUploadProps) => {
         console.error('Error checking bucket:', bucketError);
         throw bucketError;
       }
-      
-      // Upload the file to Supabase Storage with content type
+
+      // Set up the right content type
+      const options = {
+        contentType: file.type,
+        cacheControl: '3600',
+        upsert: true
+      };
+
+      // Try the upload
       const { data, error } = await supabase.storage
         .from('uploads')
-        .upload(filePath, file, {
-          contentType: file.type,
-          cacheControl: '3600',
-          upsert: true
-        });
+        .upload(filePath, file, options);
 
       if (error) {
         console.error('Supabase storage upload error:', error);
+        
+        // Handle specific RLS policy errors with user-friendly messages
+        if (error.message.includes('row-level security') || 
+            error.message.includes('permission denied') || 
+            error.statusCode === 403) {
+          throw new Error('Permission denied. Make sure you are logged in and have the right permissions.');
+        }
+        
         throw error;
       }
 
@@ -101,10 +112,10 @@ export const useFileUpload = ({ onUploadComplete }: UseFileUploadProps) => {
       
       let errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       
-      // Handle specific RLS policy errors
+      // Handle specific errors with user-friendly messages
       if (errorMessage.includes('row-level security') || 
           errorMessage.includes('new row violates') || 
-          error.statusCode === '403') {
+          error.statusCode === 403) {
         errorMessage = 'Permission denied. Contact your administrator to set up proper storage permissions.';
       }
       

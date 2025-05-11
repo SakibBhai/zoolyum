@@ -36,6 +36,12 @@ const FileUpload = ({ onUploadComplete, currentImageUrl, label = "Image" }: File
     // Clear any previous error before attempting upload
     setUploadError(null);
 
+    // Check authentication before trying upload
+    if (!isAuthenticated) {
+      setUploadError('You must be logged in to upload files');
+      return;
+    }
+
     const uploadedUrl = await uploadFile(file);
     if (uploadedUrl) {
       setPreview(uploadedUrl);

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,8 +10,9 @@ import FileUpload from "../common/FileUpload";
 import { PlusCircle } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import RichTextEditor from "./RichTextEditor";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 // Blog post interface with additional SEO fields
 interface BlogPost {
@@ -50,6 +52,7 @@ const BlogForm = ({ initialPost, onSubmit, onCancel }: BlogFormProps) => {
   const [newCategory, setNewCategory] = useState("");
   const [showCustomCategory, setShowCustomCategory] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
   const { toast } = useToast();
 
   // Generate slug from title
@@ -68,6 +71,13 @@ const BlogForm = ({ initialPost, onSubmit, onCancel }: BlogFormProps) => {
       title,
       slug: generateSlug(title)
     });
+    
+    // Clear validation error for title if it exists
+    if (validationErrors.title) {
+      const newErrors = {...validationErrors};
+      delete newErrors.title;
+      setValidationErrors(newErrors);
+    }
   };
 
   // Fetch existing categories from blog_posts table
@@ -85,7 +95,7 @@ const BlogForm = ({ initialPost, onSubmit, onCancel }: BlogFormProps) => {
         }
         
         // Extract unique categories
-        const uniqueCategories = [...new Set(data.map(item => item.category))];
+        const uniqueCategories = [...new Set(data.map(item => item.category).filter(Boolean))];
         
         // Merge with default categories and deduplicate
         const allCategories = [...new Set([...categories, ...uniqueCategories])];
@@ -100,6 +110,7 @@ const BlogForm = ({ initialPost, onSubmit, onCancel }: BlogFormProps) => {
   }, []);
 
   useEffect(() => {
+    // Reinitialize post state when initialPost changes
     setPost({
       ...initialPost,
       slug: initialPost.slug || '',
@@ -108,28 +119,46 @@ const BlogForm = ({ initialPost, onSubmit, onCancel }: BlogFormProps) => {
       meta_keywords: initialPost.meta_keywords || '',
       meta_image: initialPost.meta_image || ''
     });
+    
+    // Clear validation errors when form resets
+    setValidationErrors({});
   }, [initialPost]);
+
+  const validateForm = () => {
+    const errors: {[key: string]: string} = {};
+    
+    if (!post.title?.trim()) errors.title = "Title is required";
+    if (!post.category?.trim()) errors.category = "Category is required";
+    if (!post.slug?.trim()) errors.slug = "Slug is required";
+    if (!post.excerpt?.trim()) errors.excerpt = "Short description is required";
+    if (!post.content?.trim()) errors.content = "Content is required";
+    if (!post.author?.trim()) errors.author = "Author is required";
+    if (!post.date) errors.date = "Date is required";
+    
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate form
+    if (!validateForm()) {
+      console.log("Validation errors:", validationErrors);
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all required fields",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setIsSubmitting(true);
     
     try {
-      // Validate required fields
-      if (!post.title || !post.category || !post.slug || !post.author || !post.date || !post.content) {
-        throw new Error("Please fill in all required fields");
-      }
-      
       // Pass the post data to the parent component
       await onSubmit(post);
-      
-      toast({
-        title: post.id ? "Post updated" : "Post published",
-        description: post.id 
-          ? "Your blog post has been updated successfully" 
-          : "Your new blog post has been published",
-      });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving post:", error);
       toast({
         title: "Error saving post",
@@ -142,8 +171,13 @@ const BlogForm = ({ initialPost, onSubmit, onCancel }: BlogFormProps) => {
   };
 
   const handleImageUpload = (url: string, field: 'image' | 'meta_image' = 'image') => {
-    setPost({...post, [field]: url});
-    console.log(`Image uploaded for ${field}:`, url);
+    // Make sure URL is valid before setting it
+    if (url && typeof url === 'string') {
+      setPost({...post, [field]: url});
+      console.log(`Image uploaded for ${field}:`, url);
+    } else {
+      console.warn(`Invalid image URL received for ${field}:`, url);
+    }
   };
 
   const addCustomCategory = () => {
@@ -152,6 +186,13 @@ const BlogForm = ({ initialPost, onSubmit, onCancel }: BlogFormProps) => {
       setPost({...post, category: newCategory});
       setNewCategory("");
       setShowCustomCategory(false);
+      
+      // Clear validation error for category if it exists
+      if (validationErrors.category) {
+        const newErrors = {...validationErrors};
+        delete newErrors.category;
+        setValidationErrors(newErrors);
+      }
     }
   };
 
@@ -167,27 +208,37 @@ const BlogForm = ({ initialPost, onSubmit, onCancel }: BlogFormProps) => {
                 <Label htmlFor="title">Blog Title <span className="text-red-500">*</span></Label>
                 <Input 
                   id="title" 
-                  value={post.title} 
+                  value={post.title || ''} 
                   onChange={(e) => handleTitleChange(e.target.value)}
-                  required
+                  className={validationErrors.title ? "border-red-500" : ""}
                   placeholder="Blog Title"
                 />
+                {validationErrors.title && (
+                  <p className="text-red-500 text-xs mt-1">{validationErrors.title}</p>
+                )}
               </div>
               
               <div className="space-y-2">
                 <Label htmlFor="category">Category <span className="text-red-500">*</span></Label>
                 <div className="flex gap-2">
                   <Select 
-                    value={post.category}
+                    value={post.category || ''}
                     onValueChange={(value) => {
                       if (value === "custom") {
                         setShowCustomCategory(true);
                       } else {
                         setPost({...post, category: value});
+                        
+                        // Clear validation error for category if it exists
+                        if (validationErrors.category) {
+                          const newErrors = {...validationErrors};
+                          delete newErrors.category;
+                          setValidationErrors(newErrors);
+                        }
                       }
                     }}
                   >
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger className={`w-full ${validationErrors.category ? "border-red-500" : ""}`}>
                       <SelectValue placeholder="--" />
                     </SelectTrigger>
                     <SelectContent>
@@ -224,17 +275,78 @@ const BlogForm = ({ initialPost, onSubmit, onCancel }: BlogFormProps) => {
                     </PopoverContent>
                   </Popover>
                 </div>
+                {validationErrors.category && (
+                  <p className="text-red-500 text-xs mt-1">{validationErrors.category}</p>
+                )}
               </div>
               
               <div className="space-y-2">
                 <Label htmlFor="slug">Slug <span className="text-red-500">*</span></Label>
                 <Input 
                   id="slug" 
-                  value={post.slug} 
-                  onChange={(e) => setPost({...post, slug: e.target.value})}
-                  required
+                  value={post.slug || ''} 
+                  onChange={(e) => {
+                    setPost({...post, slug: e.target.value});
+                    
+                    // Clear validation error for slug if it exists
+                    if (validationErrors.slug) {
+                      const newErrors = {...validationErrors};
+                      delete newErrors.slug;
+                      setValidationErrors(newErrors);
+                    }
+                  }}
+                  className={validationErrors.slug ? "border-red-500" : ""}
                   placeholder="slug-goes-here"
                 />
+                {validationErrors.slug && (
+                  <p className="text-red-500 text-xs mt-1">{validationErrors.slug}</p>
+                )}
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="author">Author <span className="text-red-500">*</span></Label>
+                <Input 
+                  id="author" 
+                  value={post.author || ''} 
+                  onChange={(e) => {
+                    setPost({...post, author: e.target.value});
+                    
+                    // Clear validation error for author if it exists
+                    if (validationErrors.author) {
+                      const newErrors = {...validationErrors};
+                      delete newErrors.author;
+                      setValidationErrors(newErrors);
+                    }
+                  }}
+                  className={validationErrors.author ? "border-red-500" : ""}
+                  placeholder="Author name"
+                />
+                {validationErrors.author && (
+                  <p className="text-red-500 text-xs mt-1">{validationErrors.author}</p>
+                )}
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="date">Date <span className="text-red-500">*</span></Label>
+                <Input 
+                  id="date" 
+                  type="date"
+                  value={post.date || new Date().toISOString().split('T')[0]} 
+                  onChange={(e) => {
+                    setPost({...post, date: e.target.value});
+                    
+                    // Clear validation error for date if it exists
+                    if (validationErrors.date) {
+                      const newErrors = {...validationErrors};
+                      delete newErrors.date;
+                      setValidationErrors(newErrors);
+                    }
+                  }}
+                  className={validationErrors.date ? "border-red-500" : ""}
+                />
+                {validationErrors.date && (
+                  <p className="text-red-500 text-xs mt-1">{validationErrors.date}</p>
+                )}
               </div>
               
               <div className="space-y-2">
@@ -250,20 +362,46 @@ const BlogForm = ({ initialPost, onSubmit, onCancel }: BlogFormProps) => {
                 <Label htmlFor="short-description">Short Description <span className="text-red-500">*</span></Label>
                 <Textarea 
                   id="short-description" 
-                  value={post.excerpt} 
-                  onChange={(e) => setPost({...post, excerpt: e.target.value})}
+                  value={post.excerpt || ''} 
+                  onChange={(e) => {
+                    setPost({...post, excerpt: e.target.value});
+                    
+                    // Clear validation error for excerpt if it exists
+                    if (validationErrors.excerpt) {
+                      const newErrors = {...validationErrors};
+                      delete newErrors.excerpt;
+                      setValidationErrors(newErrors);
+                    }
+                  }}
                   rows={4}
-                  required
+                  className={validationErrors.excerpt ? "border-red-500" : ""}
                   placeholder="Brief summary of your post"
                 />
+                {validationErrors.excerpt && (
+                  <p className="text-red-500 text-xs mt-1">{validationErrors.excerpt}</p>
+                )}
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="content">Description</Label>
-                <RichTextEditor 
-                  initialValue={post.content}
-                  onChange={(content) => setPost({...post, content})}
-                />
+                <Label htmlFor="content">Description <span className="text-red-500">*</span></Label>
+                <div className={validationErrors.content ? "border border-red-500 rounded-md" : ""}>
+                  <RichTextEditor 
+                    initialValue={post.content || ''}
+                    onChange={(content) => {
+                      setPost({...post, content});
+                      
+                      // Clear validation error for content if it exists
+                      if (validationErrors.content && content?.trim()) {
+                        const newErrors = {...validationErrors};
+                        delete newErrors.content;
+                        setValidationErrors(newErrors);
+                      }
+                    }}
+                  />
+                </div>
+                {validationErrors.content && (
+                  <p className="text-red-500 text-xs mt-1">{validationErrors.content}</p>
+                )}
               </div>
             </div>
           </div>
@@ -314,6 +452,15 @@ const BlogForm = ({ initialPost, onSubmit, onCancel }: BlogFormProps) => {
             </div>
           </div>
           
+          {/* Error Summary */}
+          {Object.keys(validationErrors).length > 0 && (
+            <Alert variant="destructive">
+              <AlertDescription>
+                Please fill in all required fields marked with an asterisk (*).
+              </AlertDescription>
+            </Alert>
+          )}
+          
           <div className="flex justify-end">
             <Button 
               type="button" 
@@ -334,8 +481,10 @@ const BlogForm = ({ initialPost, onSubmit, onCancel }: BlogFormProps) => {
                   <span className="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></span>
                   {post.id ? "Updating..." : "Saving..."}
                 </>
+              ) : post.id ? (
+                "Update"
               ) : (
-                "Save"
+                "Publish"
               )}
             </Button>
           </div>
