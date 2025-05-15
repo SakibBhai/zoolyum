@@ -1,5 +1,5 @@
 
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 export const useLogout = (
   setUser: (user: null) => void,
@@ -15,7 +15,9 @@ export const useLogout = (
       setSession(null);
       setIsAuthenticated(false);
       
-      // Clear session data from storage for extra security
+      // Clear session data from storage
+      localStorage.removeItem('zoolyum_user');
+      localStorage.removeItem('zoolyum_authenticated');
       localStorage.removeItem('supabase.auth.token');
       sessionStorage.removeItem('supabase.auth.token');
       

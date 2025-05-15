@@ -34,6 +34,10 @@ export const useLogin = (
         setUser(customUser);
         setIsAuthenticated(true);
 
+        // Store auth info in localStorage for persistence
+        localStorage.setItem('zoolyum_user', JSON.stringify(customUser));
+        localStorage.setItem('zoolyum_authenticated', 'true');
+
         // Show success message
         toast({
           title: 'Login successful',
@@ -97,6 +101,10 @@ export const useLogin = (
       // Set authenticated user state
       setUser(customUser);
       setIsAuthenticated(true);
+      
+      // Store auth info in localStorage for persistence
+      localStorage.setItem('zoolyum_user', JSON.stringify(customUser));
+      localStorage.setItem('zoolyum_authenticated', 'true');
 
       // Show success message
       toast({

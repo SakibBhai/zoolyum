@@ -12,7 +12,18 @@ export const useAuthStatus = () => {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        // Set up auth state listener FIRST
+        // First check localStorage for stored authentication state
+        const storedUser = localStorage.getItem('zoolyum_user');
+        const storedAuthState = localStorage.getItem('zoolyum_authenticated');
+        
+        if (storedUser && storedAuthState === 'true') {
+          const parsedUser = JSON.parse(storedUser) as User;
+          setUser(parsedUser);
+          setIsAuthenticated(true);
+          console.log("Restored authentication from localStorage:", parsedUser.email);
+        }
+        
+        // Set up auth state listener
         const { data: authListener } = supabase.auth.onAuthStateChange(
           (_event, session) => {
             setSession(session);
@@ -21,7 +32,7 @@ export const useAuthStatus = () => {
           }
         );
 
-        // THEN check for existing session
+        // Check for existing Supabase session
         const { data, error } = await supabase.auth.getSession();
         if (error) throw error;
         
