@@ -82,9 +82,10 @@ export const useFileUpload = ({ onUploadComplete }: UseFileUploadProps) => {
         console.error('Supabase storage upload error:', error);
         
         // Handle specific RLS policy errors with user-friendly messages
+        // StorageError object doesn't have statusCode property, so we check the message
         if (error.message.includes('row-level security') || 
             error.message.includes('permission denied') || 
-            error.statusCode === 403) {
+            error.message.includes('403')) {
           throw new Error('Permission denied. Make sure you are logged in and have the right permissions.');
         }
         
@@ -115,7 +116,7 @@ export const useFileUpload = ({ onUploadComplete }: UseFileUploadProps) => {
       // Handle specific errors with user-friendly messages
       if (errorMessage.includes('row-level security') || 
           errorMessage.includes('new row violates') || 
-          error.statusCode === 403) {
+          errorMessage.includes('403')) {
         errorMessage = 'Permission denied. Contact your administrator to set up proper storage permissions.';
       }
       
